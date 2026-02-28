@@ -9,9 +9,8 @@ function ConfirmDialog({ task, desc, cancel, confirm }) {
   const cancelBtnClass = styles.btn__cancel;
   const deleteBtnClass = styles.btn__confirm;
   return (
-    <>
-      <div className={styles.overlay} onClick={toggleDialog}></div>
-      <div className={styles.dialog}>
+    <div className={styles.overlay} onClick={toggleDialog}>
+      <div className={styles.dialog} onClick={(e) => e.stopPropagation()}>
         <span className={styles.dialog__icon}>
           <AlertTriangleIcon size={24} />
         </span>
@@ -30,7 +29,7 @@ function ConfirmDialog({ task, desc, cancel, confirm }) {
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

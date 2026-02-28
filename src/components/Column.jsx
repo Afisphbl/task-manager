@@ -1,9 +1,11 @@
 import React from "react";
+import { useTasks } from "../context/DataProvider";
 import Button from "./ReUsedComponents/Button";
 import TaskCard from "./TaskCard";
 import styles from "../styles/Column.module.css";
 
 function Column({ title, count, tasks }) {
+  const { onAddTask } = useTasks();
   const btnClass = styles.column__addBtn;
 
   return (
@@ -23,7 +25,9 @@ function Column({ title, count, tasks }) {
           <TaskCard key={task.id} {...task} />
         ))}
       </div>
-      <Button className={btnClass}>+ Add Task</Button>
+      <Button className={btnClass} onClick={onAddTask}>
+        + Add Task
+      </Button>
     </section>
   );
 }

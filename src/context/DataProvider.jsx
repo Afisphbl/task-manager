@@ -5,11 +5,20 @@ const tasksContext = createContext();
 
 export function TasksProvider({ children }) {
   const [tasks, setTasks] = useState(INITIAL_TASKS);
+  const [isAdding, setIsAdding] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
   function onUpdateTasks(updatedTasks) {
     setTasks((prev) => [updatedTasks, ...prev]);
+  }
+
+  function onAddTask() {
+    setIsAdding(true);
+  }
+
+  function onToggleAdd() {
+    setIsAdding((prev) => !prev);
   }
 
   function onDeleteTask(taskId) {
@@ -29,9 +38,12 @@ export function TasksProvider({ children }) {
     <tasksContext.Provider
       value={{
         tasks,
+        isAdding,
         isDialogOpen,
         selectedTaskId,
         onUpdateTasks,
+        onAddTask,
+        onToggleAdd,
         onDeleteTask,
         toggleDialog,
         selectTask,

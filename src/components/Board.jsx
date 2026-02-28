@@ -6,7 +6,7 @@ import ConfirmDialog from "./ConfirmDialog";
 import styles from "../styles/Board.module.css";
 
 function Board() {
-  const { tasks, isDialogOpen } = useTasks();
+  const { tasks, isDialogOpen, isAdding } = useTasks();
   const columns = {
     todo: [...tasks.filter((t) => t.column === "todo")],
     inprogress: [...tasks.filter((t) => t.column === "inprogress")],
@@ -29,7 +29,8 @@ function Board() {
           confirm="Delete"
         />
       )}
-      <TaskModel />
+
+      {isAdding && <TaskModel />}
       {Object.keys(columns).map((col) => (
         <Column
           key={col}

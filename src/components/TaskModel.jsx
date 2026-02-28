@@ -1,9 +1,11 @@
 import React from "react";
+import { useTasks } from "../context/DataProvider";
 import Button from "./ReUsedComponents/Button";
 import Input from "./ReUsedComponents/Input";
 import styles from "../styles/TaskModal.module.css";
 
 function TaskModel() {
+  const { onToggleAdd } = useTasks();
   const closeBtnClass = `${styles.modal__closeBtn}`;
 
   const btnPriorityClass = `${styles.priority__btn}`;
@@ -18,11 +20,13 @@ function TaskModel() {
 
   const saveBtnClass = `${styles.btn__save}`;
   return (
-    <div className={styles.overlay}>
-      <section className={styles.modal}>
+    <div className={styles.overlay} onClick={onToggleAdd}>
+      <section className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modal__header}>
           <h2 className={styles.modal__title}>Create New Task</h2>
-          <Button className={closeBtnClass}>&times;</Button>
+          <Button className={closeBtnClass} onClick={onToggleAdd}>
+            &times;
+          </Button>
         </div>
 
         <form className={styles.modal__form}>
@@ -105,7 +109,9 @@ function TaskModel() {
           </div>
 
           <div className={styles.modal__actions}>
-            <Button className={cancelBtnClass}>Cancel</Button>
+            <Button className={cancelBtnClass} onClick={onToggleAdd}>
+              Cancel
+            </Button>
             <Button className={saveBtnClass}>Save</Button>
           </div>
         </form>
