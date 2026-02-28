@@ -12,7 +12,7 @@ const tasksContext = createContext();
 
 export function TasksProvider({ children }) {
   const [tasks, setTasks] = useState(INITIAL_TASKS);
-  const [updateTask, setUpdateTask] = useState({});
+  const [editTask, setEditTask] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [column, setColumn] = useState("");
@@ -63,7 +63,7 @@ export function TasksProvider({ children }) {
 
   function onEditTask({ id }) {
     const task = tasks.find((t) => t.id === id);
-    setUpdateTask(task);
+    setEditTask(task);
     setIsAdding(true);
   }
 
@@ -74,7 +74,7 @@ export function TasksProvider({ children }) {
   function onAddTask(col) {
     setIsAdding(true);
     setColumn(col);
-    setUpdateTask({});
+    setEditTask({});
   }
 
   function onToggleAdd() {
@@ -90,7 +90,7 @@ export function TasksProvider({ children }) {
       return [newTask, ...prev];
     });
 
-    setUpdateTask({});
+    setEditTask({});
   }
 
   function onDeleteTask(taskId) {
@@ -110,7 +110,7 @@ export function TasksProvider({ children }) {
     <tasksContext.Provider
       value={{
         tasks,
-        updateTask,
+        editTask,
         filteredTasks,
         isAdding,
         column,
