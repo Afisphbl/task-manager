@@ -1,0 +1,117 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--navbar-height);
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-slow);
+}
+
+/* Brand */
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.navbar__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  border-radius: var(--radius-sm);
+  color: #fff;
+}
+
+.navbar__name {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--brand-name);
+  letter-spacing: -0.3px;
+}
+
+/* Search */
+.navbar__search {
+  flex: 1;
+  max-width: 480px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navbar__searchIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  display: flex;
+  pointer-events: none;
+}
+
+.navbar__searchInput {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 38px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 99px;
+  color: var(--text-primary);
+  font-size: 13px;
+  transition: var(--transition);
+}
+
+.navbar__searchInput::placeholder {
+  color: var(--text-muted);
+}
+
+.navbar__searchInput:focus {
+  border-color: var(--accent-blue);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Actions */
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.navbar__themeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.navbar__themeBtn:hover {
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  background: var(--accent-blue-light);
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 0 14px;
+    gap: 10px;
+  }
+  .navbar__search {
+    max-width: 100%;
+  }
+}

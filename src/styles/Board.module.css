@@ -1,0 +1,13 @@
+.board {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  min-height: calc(100vh - var(--navbar-height) - 64px);
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .board {
+    flex-direction: column;
+  }
+}
