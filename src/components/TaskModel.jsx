@@ -5,16 +5,16 @@ import Input from "./ReUsedComponents/Input";
 import styles from "../styles/TaskModal.module.css";
 
 function TaskModel() {
-  const { updateTask, column, onToggleAdd, onAddNewTask } = useTasks();
+  const { editTask, column, onToggleAdd, onAddNewTask } = useTasks();
   const [error, setError] = useState(false);
   const [newTask, setNewTask] = useState({
-    id: updateTask.id || crypto.randomUUID(),
-    title: updateTask.title || "",
-    description: updateTask.description || "",
-    priority: updateTask.priority || "",
-    label: updateTask.label || "",
-    dueDate: updateTask.dueDate || "",
-    column: updateTask.column || column,
+    id: editTask.id || crypto.randomUUID(),
+    title: editTask.title || "",
+    description: editTask.description || "",
+    priority: editTask.priority || "",
+    label: editTask.label || "",
+    dueDate: editTask.dueDate || "",
+    column: editTask.column || column,
     createdAt: new Date().toISOString(),
   });
 
@@ -30,6 +30,14 @@ function TaskModel() {
   const cancelBtnClass = `${styles.btn__cancel}`;
 
   const saveBtnClass = `${styles.btn__save}`;
+
+  const priorityClass = "priority__btn";
+
+  const priorityOptions = [
+    { value: "low", label: "Low" },
+    { value: "medium", label: "Medium" },
+    { value: "high", label: "High" },
+  ];
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -122,30 +130,18 @@ function TaskModel() {
             <div className={styles.field}>
               <p className={styles.field__label}>Priority</p>
               <div className={styles.priority__group}>
-                <span
-                  className={
-                    styles.priority__btn + " " + styles.priority__btn__low
-                  }
-                  onClick={() => setNewTask({ ...newTask, priority: "low" })}
-                >
-                  Low
-                </span>
-                <span
-                  className={
-                    styles.priority__btn + " " + styles.priority__btn__medium
-                  }
-                  onClick={() => setNewTask({ ...newTask, priority: "medium" })}
-                >
-                  Medium
-                </span>
-                <span
-                  className={
-                    styles.priority__btn + " " + styles.priority__btn__high
-                  }
-                  onClick={() => setNewTask({ ...newTask, priority: "high" })}
-                >
-                  High
-                </span>
+                {priorityOptions.map((option) => (
+                  <Button
+                    type="button"
+                    key={option.value}
+                    className={`${styles[`${priorityClass}`]} ${styles[`${priorityClass}__${option.value}`]} ${newTask.priority === option.value ? styles[`${priorityClass}__active`] : ""}`}
+                    onClick={() =>
+                      setNewTask({ ...newTask, priority: option.value })
+                    }
+                  >
+                    {option.label}
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
