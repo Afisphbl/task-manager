@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useTasks } from "../context/DataProvider";
+import useDebounce from "../debounce/UseDebounce";
 import Button from "./ReUsedComponents/Button";
 import Input from "./ReUsedComponents/Input";
 import { Grid2X2Check, Search, MoonIcon, SunIcon } from "lucide-react";
@@ -10,9 +11,11 @@ function NavBar() {
   const [search, setSearch] = useState("");
   const { onSearchTasks } = useTasks();
 
+  const debouncedSearch = useDebounce(search, 700);
+
   useEffect(() => {
-    onSearchTasks(search);
-  }, [search, onSearchTasks]);
+    onSearchTasks(debouncedSearch);
+  }, [debouncedSearch, onSearchTasks]);
 
   return (
     <nav className={styles.navbar}>
