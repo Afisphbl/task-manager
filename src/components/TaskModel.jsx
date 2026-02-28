@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTasks } from "../context/DataProvider";
 import Button from "./ReUsedComponents/Button";
 import Input from "./ReUsedComponents/Input";
@@ -6,6 +6,7 @@ import styles from "../styles/TaskModal.module.css";
 
 function TaskModel() {
   const { editTask, column, onToggleAdd, onAddNewTask } = useTasks();
+  const ref = useRef();
   const [error, setError] = useState(false);
   const [newTask, setNewTask] = useState({
     id: editTask.id || crypto.randomUUID(),
@@ -38,6 +39,10 @@ function TaskModel() {
     { value: "medium", label: "Medium" },
     { value: "high", label: "High" },
   ];
+
+  useEffect(() => {
+    ref.current.focus();
+  }, []);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -74,6 +79,7 @@ function TaskModel() {
           <div className={styles.field}>
             <Input
               htmlFor="title"
+              ref={ref}
               className={`${styles.field__input} ${error ? styles.field__input__error : ""}`}
               labelClassName={styles.field__label}
               type="text"
@@ -157,7 +163,7 @@ function TaskModel() {
                 placeholder="e.g., Dev, Design, Marketing"
                 value={newTask.label}
                 onChange={(e) =>
-                  setNewTask({ ...newTask, label: e.target.value.trim() })
+                  setNewTask({ ...newTask, label: e.target.value })
                 }
               >
                 Label

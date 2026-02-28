@@ -7,6 +7,7 @@ export default function Input({
   value = "",
   min = "",
   max = "",
+  ref,
   onChange,
   children,
   ...rest
@@ -24,6 +25,7 @@ export default function Input({
         onChange={onChange}
         min={min}
         max={max}
+        ref={ref}
         {...rest}
       />
     </>

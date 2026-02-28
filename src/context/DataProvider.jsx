@@ -6,12 +6,11 @@ import React, {
   useState,
 } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
-import { INITIAL_TASKS } from "../data/taskData";
 
 const tasksContext = createContext();
 
 export function TasksProvider({ children }) {
-  const [tasks, setTasks] = useState(INITIAL_TASKS);
+  const [tasks, setTasks] = useState([]);
   const [editTask, setEditTask] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [isAdding, setIsAdding] = useState(false);
