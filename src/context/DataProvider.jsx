@@ -12,6 +12,7 @@ const tasksContext = createContext();
 
 export function TasksProvider({ children }) {
   const [tasks, setTasks] = useState(INITIAL_TASKS);
+  const [updateTask, setUpdateTask] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [column, setColumn] = useState("");
@@ -60,8 +61,10 @@ export function TasksProvider({ children }) {
     });
   }
 
-  function onUpdateTasks(updatedTasks) {
-    setTasks((prev) => [updatedTasks, ...prev]);
+  function onEditTask({ id }) {
+    const task = tasks.find((t) => t.id === id);
+    setUpdateTask(task);
+    setIsAdding(true);
   }
 
   const onSearchTasks = useCallback((searchTerm) => {
@@ -71,6 +74,7 @@ export function TasksProvider({ children }) {
   function onAddTask(col) {
     setIsAdding(true);
     setColumn(col);
+    setUpdateTask({});
   }
 
   function onToggleAdd() {
@@ -79,7 +83,14 @@ export function TasksProvider({ children }) {
   }
 
   function onAddNewTask(newTask) {
-    setTasks((prev) => [newTask, ...prev]);
+    setTasks((prev) => {
+      if (prev.some((t) => t.id === newTask.id)) {
+        return prev.map((t) => (t.id === newTask.id ? newTask : t));
+      }
+      return [newTask, ...prev];
+    });
+
+    setUpdateTask({});
   }
 
   function onDeleteTask(taskId) {
@@ -99,12 +110,13 @@ export function TasksProvider({ children }) {
     <tasksContext.Provider
       value={{
         tasks,
+        updateTask,
         filteredTasks,
         isAdding,
         column,
         isDialogOpen,
         selectedTaskId,
-        onUpdateTasks,
+        onEditTask,
         onSearchTasks,
         onAddTask,
         onToggleAdd,

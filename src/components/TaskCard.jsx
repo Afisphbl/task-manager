@@ -23,7 +23,7 @@ function TaskCard({
   dueDate,
   isDragging,
 }) {
-  const { toggleDialog, selectTask } = useTasks();
+  const { toggleDialog, selectTask, onUpdateTasks } = useTasks();
   // const priorityColors = `${style[`badge__${priority}`]}`;
   const createdAtDate = dueDate && new Date(dueDate);
   const formattedDate =
@@ -66,7 +66,7 @@ function TaskCard({
 
       <div className={styles.card__content}>
         <div className={styles.card__meta}>
-          <span className={styles.card__label}>{label}</span>
+          {label && <span className={styles.card__label}>{label}</span>}
           <Badge className={priorityColors[priority]}>{priority}</Badge>
         </div>
 
@@ -80,7 +80,11 @@ function TaskCard({
           </p>
 
           <div className={styles.card__actions}>
-            <Button type="button" className={styles.card__actionBtn}>
+            <Button
+              type="button"
+              className={styles.card__actionBtn}
+              onClick={() => onUpdateTasks({ id })}
+            >
               <LucideEdit size={14} />
             </Button>
 

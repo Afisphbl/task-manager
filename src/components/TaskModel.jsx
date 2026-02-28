@@ -5,16 +5,16 @@ import Input from "./ReUsedComponents/Input";
 import styles from "../styles/TaskModal.module.css";
 
 function TaskModel() {
-  const { column, onToggleAdd, onAddNewTask } = useTasks();
+  const { updateTask, column, onToggleAdd, onAddNewTask } = useTasks();
   const [error, setError] = useState(false);
   const [newTask, setNewTask] = useState({
-    id: crypto.randomUUID(),
-    title: "",
-    desc: "",
-    priority: "",
-    label: "",
-    dueDate: "",
-    column: column,
+    id: updateTask.id || crypto.randomUUID(),
+    title: updateTask.title || "",
+    description: updateTask.description || "",
+    priority: updateTask.priority || "",
+    label: updateTask.label || "",
+    dueDate: updateTask.dueDate || "",
+    column: updateTask.column || column,
     createdAt: new Date().toISOString(),
   });
 
@@ -43,9 +43,8 @@ function TaskModel() {
     onToggleAdd();
     setError(false);
     setNewTask({
-      id: crypto.randomUUID(),
       title: "",
-      desc: "",
+      description: "",
       priority: "",
       label: "",
       dueDate: "",
@@ -74,7 +73,7 @@ function TaskModel() {
               placeholder="e.g., Fix navigation bug on mobile"
               value={newTask.title}
               onChange={(e) =>
-                setNewTask({ ...newTask, title: e.target.value.trim() })
+                setNewTask({ ...newTask, title: e.target.value })
               }
             >
               Task Title <span className={styles.field__required}>*</span>
@@ -93,9 +92,9 @@ function TaskModel() {
               id="desc"
               className={styles.field__textarea}
               placeholder="Add detailed information about the task..."
-              value={newTask.desc}
+              value={newTask.description}
               onChange={(e) =>
-                setNewTask({ ...newTask, desc: e.target.value.trim() })
+                setNewTask({ ...newTask, description: e.target.value })
               }
             ></textarea>
           </div>
@@ -111,7 +110,7 @@ function TaskModel() {
                 className={styles.field__select}
                 value={newTask.column}
                 onChange={(e) =>
-                  setNewTask({ ...newTask, column: e.target.value.trim() })
+                  setNewTask({ ...newTask, column: e.target.value })
                 }
               >
                 <option value="todo">To Do</option>
