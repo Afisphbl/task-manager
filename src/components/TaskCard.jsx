@@ -1,10 +1,18 @@
 import React from "react";
-import { useTasks } from "../context/DataProvider";
 import { GripVertical, Calendar, LucideEdit, Trash2 } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { useTasks } from "../context/DataProvider";
 import Button from "./ReUsedComponents/Button";
 import Badge from "./Badge";
 import styles from "../styles/TaskCard.module.css";
 import style from "../styles/Badge.module.css";
+
+const priorityColors = {
+  low: style.badge__low,
+  medium: style.badge__medium,
+  high: style.badge__high,
+};
 
 function TaskCard({
   id,
@@ -13,10 +21,10 @@ function TaskCard({
   priority,
   label,
   dueDate,
-  createdAt,
+  isDragging,
 }) {
   const { toggleDialog, selectTask } = useTasks();
-  const priorityColors = `${style[`badge__${priority}`]}`;
+  // const priorityColors = `${style[`badge__${priority}`]}`;
   const createdAtDate = dueDate && new Date(dueDate);
   const formattedDate =
     dueDate &&
@@ -30,16 +38,36 @@ function TaskCard({
     toggleDialog();
   }
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: isSortableDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const isBeingDragged = isDragging || isSortableDragging;
+
   return (
-    <section className={styles.card}>
-      <div className={styles.card__dragHandle}>
+    <section
+      ref={setNodeRef}
+      style={style}
+      className={`${styles.card} ${isBeingDragged ? styles.card__dragging : ""}`}
+    >
+      <div className={styles.card__dragHandle} {...attributes} {...listeners}>
         <GripVertical size={14} />
       </div>
 
       <div className={styles.card__content}>
         <div className={styles.card__meta}>
           <span className={styles.card__label}>{label}</span>
-          <Badge className={priorityColors}>{priority}</Badge>
+          <Badge className={priorityColors[priority]}>{priority}</Badge>
         </div>
 
         <h3 className={styles.card__title}>{title}</h3>
