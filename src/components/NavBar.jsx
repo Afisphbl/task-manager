@@ -4,7 +4,13 @@ import { useTasks } from "../context/DataProvider";
 import useDebounce from "../debounce/UseDebounce";
 import Button from "./ReUsedComponents/Button";
 import Input from "./ReUsedComponents/Input";
-import { Grid2X2Check, Search, MoonIcon, SunIcon } from "lucide-react";
+import {
+  Grid2X2Check,
+  Search,
+  MoonIcon,
+  SunIcon,
+  CircleHelp,
+} from "lucide-react";
 import styles from "../styles/Navbar.module.css";
 
 function NavBar() {
@@ -60,8 +66,23 @@ function NavSearch({ search, setSearch }) {
 
 function NavActions() {
   const { theme, onToggleTheme } = useTheme();
+  const [showSummary, setShowSummary] = useState(false);
+
+  function onToggleSummary() {
+    setShowSummary((prev) => !prev);
+  }
+
   return (
     <div className={styles.navbar__actions}>
+      <Button
+        className={styles.navbar__aboutBtn}
+        type="button"
+        onClick={onToggleSummary}
+      >
+        <CircleHelp size={16} />
+        About
+      </Button>
+
       <Button
         className={styles.navbar__themeBtn}
         type="button"
@@ -69,6 +90,23 @@ function NavActions() {
       >
         {theme === "light" ? <MoonIcon size={18} /> : <SunIcon size={18} />}
       </Button>
+
+      {showSummary && (
+        <div className={styles.navbar__summaryPanel}>
+          <h3 className={styles.navbar__summaryTitle}>TaskFlow Summary</h3>
+          <p className={styles.navbar__summaryText}>
+            TaskFlow is a simple task board to create, organize, and track work
+            across progress stages.
+          </p>
+          <ul className={styles.navbar__summaryList}>
+            <li>Kanban columns: To Do, In Progress, Done</li>
+            <li>Drag and drop tasks between columns</li>
+            <li>Debounced task search from the navbar</li>
+            <li>Add and delete tasks quickly</li>
+            <li>Light and dark theme toggle</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

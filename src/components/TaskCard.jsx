@@ -60,7 +60,12 @@ function TaskCard({
       style={style}
       className={`${styles.card} ${isBeingDragged ? styles.card__dragging : ""}`}
     >
-      <div className={styles.card__dragHandle} {...attributes} {...listeners}>
+      <div
+        className={styles.card__dragHandle}
+        {...attributes}
+        {...listeners}
+        title="Use this to drag and drop"
+      >
         <GripVertical size={14} />
       </div>
 
