@@ -1,6 +1,7 @@
 import React from "react";
 import { useTasks } from "../context/DataProvider";
 import Column from "./Column";
+import TaskModel from "./TaskModel";
 import ConfirmDialog from "./ConfirmDialog";
 import styles from "../styles/Board.module.css";
 
@@ -28,6 +29,7 @@ function Board() {
           confirm="Delete"
         />
       )}
+      <TaskModel />
       {Object.keys(columns).map((col) => (
         <Column
           key={col}
