@@ -19,6 +19,12 @@ function Board() {
     done: columns.done.length,
   };
 
+  const dotStyle = [
+    "var(--col-todo-dot)",
+    "var(--col-inprogress-dot)",
+    "var(--col-done-dot)",
+  ];
+
   return (
     <section className={styles.board}>
       {isDialogOpen && (
@@ -31,12 +37,13 @@ function Board() {
       )}
 
       {isAdding && <TaskModel />}
-      {Object.keys(columns).map((col) => (
+      {Object.keys(columns).map((col, i) => (
         <Column
           key={col}
           title={col}
           count={counts[col]}
           tasks={columns[col]}
+          dotStyle={dotStyle[i]}
         />
       ))}
     </section>

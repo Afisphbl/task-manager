@@ -7,6 +7,7 @@ export function TasksProvider({ children }) {
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [filteredTasks, setFilteredTasks] = useState([...tasks]);
   const [isAdding, setIsAdding] = useState(false);
+  const [column, setColumn] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
@@ -23,8 +24,10 @@ export function TasksProvider({ children }) {
         return;
       }
 
-      const filtered = tasks.filter((task) =>
-        task.title.toLowerCase().includes(term),
+      const filtered = tasks.filter(
+        (task) =>
+          task.title.toLowerCase().includes(term) ||
+          task.description.toLowerCase().includes(term),
       );
 
       setFilteredTasks(filtered);
@@ -32,12 +35,18 @@ export function TasksProvider({ children }) {
     [tasks],
   );
 
-  function onAddTask() {
+  function onAddTask(col) {
     setIsAdding(true);
+    setColumn(col);
   }
 
   function onToggleAdd() {
     setIsAdding((prev) => !prev);
+    setColumn("");
+  }
+
+  function onAddNewTask(newTask) {
+    setTasks((prev) => [newTask, ...prev]);
   }
 
   function onDeleteTask(taskId) {
@@ -59,12 +68,14 @@ export function TasksProvider({ children }) {
         tasks,
         filteredTasks,
         isAdding,
+        column,
         isDialogOpen,
         selectedTaskId,
         onUpdateTasks,
         onSearchTasks,
         onAddTask,
         onToggleAdd,
+        onAddNewTask,
         onDeleteTask,
         toggleDialog,
         selectTask,

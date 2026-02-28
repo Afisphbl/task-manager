@@ -4,7 +4,9 @@ export default function Input({
   className = "",
   labelClassName = "",
   placeholder = "",
-  value,
+  value = "",
+  min = "",
+  max = "",
   onChange,
   children,
   ...rest
@@ -20,6 +22,8 @@ export default function Input({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        min={min}
+        max={max}
         {...rest}
       />
     </>

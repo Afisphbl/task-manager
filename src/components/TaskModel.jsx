@@ -1,24 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTasks } from "../context/DataProvider";
 import Button from "./ReUsedComponents/Button";
 import Input from "./ReUsedComponents/Input";
 import styles from "../styles/TaskModal.module.css";
 
 function TaskModel() {
-  const { onToggleAdd } = useTasks();
+  const { column, onToggleAdd, onAddNewTask } = useTasks();
+  const [error, setError] = useState(false);
+  const [newTask, setNewTask] = useState({
+    id: crypto.randomUUID(),
+    title: "",
+    desc: "",
+    priority: "",
+    label: "",
+    dueDate: "",
+    column: column,
+    createdAt: new Date().toISOString(),
+  });
+
+  const minDate =
+    newTask.column === "todo" || newTask.column === "inprogress"
+      ? new Date().toISOString().split("T")[0]
+      : "";
+  const maxDate =
+    newTask.column === "done" ? new Date().toISOString().split("T")[0] : "";
+
   const closeBtnClass = `${styles.modal__closeBtn}`;
-
-  const btnPriorityClass = `${styles.priority__btn}`;
-
-  const btnLowClass = `${btnPriorityClass} ${styles.priority__btn__low}`;
-
-  const btnMediumClass = `${btnPriorityClass} ${styles.priority__btn__medium}`;
-
-  const btnHighClass = `${btnPriorityClass} ${styles.priority__btn__high}`;
 
   const cancelBtnClass = `${styles.btn__cancel}`;
 
   const saveBtnClass = `${styles.btn__save}`;
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    if (newTask.title === "") {
+      setError(true);
+      return;
+    }
+
+    onAddNewTask(newTask);
+    onToggleAdd();
+    setError(false);
+    setNewTask({
+      id: crypto.randomUUID(),
+      title: "",
+      desc: "",
+      priority: "",
+      label: "",
+      dueDate: "",
+      column: column,
+      createdAt: new Date().toISOString(),
+    });
+  }
   return (
     <div className={styles.overlay} onClick={onToggleAdd}>
       <section className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -29,18 +63,25 @@ function TaskModel() {
           </Button>
         </div>
 
-        <form className={styles.modal__form}>
+        <form className={styles.modal__form} onSubmit={handleSubmit}>
           <div className={styles.field}>
             <Input
               htmlFor="title"
-              className={styles.field__input}
+              className={`${styles.field__input} ${error ? styles.field__input__error : ""}`}
               labelClassName={styles.field__label}
               type="text"
               id="title"
               placeholder="e.g., Fix navigation bug on mobile"
+              value={newTask.title}
+              onChange={(e) =>
+                setNewTask({ ...newTask, title: e.target.value.trim() })
+              }
             >
               Task Title <span className={styles.field__required}>*</span>
             </Input>
+            {error && (
+              <p className={styles.field__error}>Task title is required</p>
+            )}
           </div>
 
           <div className={styles.field}>
@@ -52,6 +93,10 @@ function TaskModel() {
               id="desc"
               className={styles.field__textarea}
               placeholder="Add detailed information about the task..."
+              value={newTask.desc}
+              onChange={(e) =>
+                setNewTask({ ...newTask, desc: e.target.value.trim() })
+              }
             ></textarea>
           </div>
 
@@ -64,6 +109,10 @@ function TaskModel() {
                 name="column"
                 id="column"
                 className={styles.field__select}
+                value={newTask.column}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, column: e.target.value.trim() })
+                }
               >
                 <option value="todo">To Do</option>
                 <option value="inprogress">In Progress</option>
@@ -74,9 +123,30 @@ function TaskModel() {
             <div className={styles.field}>
               <p className={styles.field__label}>Priority</p>
               <div className={styles.priority__group}>
-                <Button className={btnLowClass}>Low</Button>
-                <Button className={btnMediumClass}>Medium</Button>
-                <Button className={btnHighClass}>High</Button>
+                <span
+                  className={
+                    styles.priority__btn + " " + styles.priority__btn__low
+                  }
+                  onClick={() => setNewTask({ ...newTask, priority: "low" })}
+                >
+                  Low
+                </span>
+                <span
+                  className={
+                    styles.priority__btn + " " + styles.priority__btn__medium
+                  }
+                  onClick={() => setNewTask({ ...newTask, priority: "medium" })}
+                >
+                  Medium
+                </span>
+                <span
+                  className={
+                    styles.priority__btn + " " + styles.priority__btn__high
+                  }
+                  onClick={() => setNewTask({ ...newTask, priority: "high" })}
+                >
+                  High
+                </span>
               </div>
             </div>
           </div>
@@ -90,6 +160,10 @@ function TaskModel() {
                 type="text"
                 id="label"
                 placeholder="e.g., Dev, Design, Marketing"
+                value={newTask.label}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, label: e.target.value.trim() })
+                }
               >
                 Label
               </Input>
@@ -102,6 +176,12 @@ function TaskModel() {
                 labelClassName={styles.field__label}
                 type="date"
                 id="dueDate"
+                value={newTask.dueDate}
+                min={minDate}
+                max={maxDate}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, dueDate: e.target.value })
+                }
               >
                 Due Date
               </Input>
@@ -109,10 +189,16 @@ function TaskModel() {
           </div>
 
           <div className={styles.modal__actions}>
-            <Button className={cancelBtnClass} onClick={onToggleAdd}>
+            <Button
+              className={cancelBtnClass}
+              onClick={onToggleAdd}
+              type="button"
+            >
               Cancel
             </Button>
-            <Button className={saveBtnClass}>Save</Button>
+            <Button className={saveBtnClass} type="submit">
+              Save
+            </Button>
           </div>
         </form>
       </section>

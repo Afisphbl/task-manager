@@ -17,11 +17,13 @@ function TaskCard({
 }) {
   const { toggleDialog, selectTask } = useTasks();
   const priorityColors = `${style[`badge__${priority}`]}`;
-  const createdAtDate = new Date(createdAt);
-  const formattedDate = createdAtDate.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+  const createdAtDate = dueDate && new Date(dueDate);
+  const formattedDate =
+    dueDate &&
+    createdAtDate.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
 
   function handleDelete(id) {
     selectTask(id);
@@ -45,7 +47,7 @@ function TaskCard({
 
         <div className={styles.card__footer}>
           <p className={styles.card__date}>
-            <Calendar size={12} />
+            {dueDate && <Calendar size={12} />}
             {formattedDate}
           </p>
 
