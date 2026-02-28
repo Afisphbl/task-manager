@@ -1,11 +1,11 @@
 import React from "react";
 import { useTasks } from "../context/DataProvider";
-import Column, { EmptyState } from "./Column";
-import TaskCard from "./TaskCard";
+import Column from "./Column";
+import ConfirmDialog from "./ConfirmDialog";
 import styles from "../styles/Board.module.css";
 
 function Board() {
-  const { tasks } = useTasks();
+  const { tasks, isDialogOpen } = useTasks();
   const columns = {
     todo: [...tasks.filter((t) => t.column === "todo")],
     inprogress: [...tasks.filter((t) => t.column === "inprogress")],
@@ -20,24 +20,22 @@ function Board() {
 
   return (
     <section className={styles.board}>
-      <Column title="to do" count={counts.todo}>
-        {counts.todo === 0 && <EmptyState />}
-        {columns.todo.map((task) => (
-          <TaskCard key={task.id} {...task} />
-        ))}
-      </Column>
-      <Column title="in progress" count={counts.inprogress}>
-        {counts.inprogress === 0 && <EmptyState />}
-        {columns.inprogress.map((task) => (
-          <TaskCard key={task.id} {...task} />
-        ))}
-      </Column>
-      <Column title="done" count={counts.done}>
-        {counts.done === 0 && <EmptyState />}
-        {columns.done.map((task) => (
-          <TaskCard key={task.id} {...task} />
-        ))}
-      </Column>
+      {isDialogOpen && (
+        <ConfirmDialog
+          task="Delete Task?"
+          desc="This action cannot be undone. The task will be permanently removed."
+          cancel="Cancel"
+          confirm="Delete"
+        />
+      )}
+      {Object.keys(columns).map((col) => (
+        <Column
+          key={col}
+          title={col}
+          count={counts[col]}
+          tasks={columns[col]}
+        />
+      ))}
     </section>
   );
 }

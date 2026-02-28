@@ -15,13 +15,19 @@ function TaskCard({
   dueDate,
   createdAt,
 }) {
-  const { onDeleteTask } = useTasks();
+  const { toggleDialog, selectTask } = useTasks();
   const priorityColors = `${style[`badge__${priority}`]}`;
   const createdAtDate = new Date(createdAt);
   const formattedDate = createdAtDate.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
+
+  function handleDelete(id) {
+    selectTask(id);
+    toggleDialog();
+  }
+
   return (
     <section className={styles.card}>
       <div className={styles.card__dragHandle}>
@@ -53,7 +59,7 @@ function TaskCard({
               className={
                 styles.card__actionBtn + " " + styles.card__actionBtn__delete
               }
-              onClick={() => onDeleteTask(id)}
+              onClick={() => handleDelete(id)}
             >
               <Trash2 size={14} />
             </Button>

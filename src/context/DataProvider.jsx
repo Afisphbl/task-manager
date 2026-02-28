@@ -5,6 +5,8 @@ const tasksContext = createContext();
 
 export function TasksProvider({ children }) {
   const [tasks, setTasks] = useState(INITIAL_TASKS);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
 
   function onUpdateTasks(updatedTasks) {
     setTasks((prev) => [updatedTasks, ...prev]);
@@ -12,9 +14,29 @@ export function TasksProvider({ children }) {
 
   function onDeleteTask(taskId) {
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    setSelectedTaskId(null);
+    setIsDialogOpen(false);
+  }
+
+  function toggleDialog() {
+    setIsDialogOpen((prev) => !prev);
+  }
+
+  function selectTask(id) {
+    setSelectedTaskId(id);
   }
   return (
-    <tasksContext.Provider value={{ tasks, onUpdateTasks, onDeleteTask }}>
+    <tasksContext.Provider
+      value={{
+        tasks,
+        isDialogOpen,
+        selectedTaskId,
+        onUpdateTasks,
+        onDeleteTask,
+        toggleDialog,
+        selectTask,
+      }}
+    >
       {children}
     </tasksContext.Provider>
   );

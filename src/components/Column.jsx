@@ -1,9 +1,11 @@
 import React from "react";
 import Button from "./ReUsedComponents/Button";
+import TaskCard from "./TaskCard";
 import styles from "../styles/Column.module.css";
 
-function Column({ title, count, children }) {
+function Column({ title, count, tasks }) {
   const btnClass = styles.column__addBtn;
+
   return (
     <section className={styles.column}>
       <div className={styles.column__header}>
@@ -15,7 +17,12 @@ function Column({ title, count, children }) {
         </div>
       </div>
 
-      <div className={styles.column__body}>{children}</div>
+      <div className={styles.column__body}>
+        {count === 0 && <EmptyState />}
+        {tasks.map((task) => (
+          <TaskCard key={task.id} {...task} />
+        ))}
+      </div>
       <Button className={btnClass}>+ Add Task</Button>
     </section>
   );
