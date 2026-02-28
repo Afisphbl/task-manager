@@ -1,70 +1,171 @@
-# Getting Started with Create React App
+# TaskFlow - Task Manager (Kanban)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Preview
 
-## Available Scripts
+### Board - Dark Mode
 
-In the project directory, you can run:
+![TaskFlow Dark Mode](./screenshots/app-screenshot.png)
 
-### `npm start`
+### Board - Light Mode
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+![TaskFlow Light Mode](./screenshots/light-mode.png)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Features Preview
 
-### `npm test`
+|                Add Task Modal                 |                      Delete Confirmation                      |                  About Panel                  |
+| :-------------------------------------------: | :-----------------------------------------------------------: | :-------------------------------------------: |
+| ![Add Task](./screenshots/add-task-modal.png) | ![Delete Confirmation](./screenshots/delete-confirmation.png) | ![About Panel](./screenshots/about-panel.png) |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Features
 
-### `npm run build`
+- Kanban workflow with 3 columns: **To Do**, **In Progress**, **Done**
+- Drag-and-drop task movement between columns and between task cards
+- Create, edit, and delete tasks
+- Task details support:
+  - Title (required)
+  - Description
+  - Priority (Low, Medium, High)
+  - Label
+  - Due date
+- Debounced search from the navbar
+- Theme toggle (Light / Dark)
+- About panel in navbar with product summary and feature quick list
+- Persistent data using `localStorage` (tasks and theme)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Tech Stack
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- React 19
+- Create React App (react-scripts 5)
+- DnD Kit (`@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`)
+- Lucide React icons
+- CSS Modules
+- Context API for global app state
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Project Structure
 
-### `npm run eject`
+```text
+src/
+	components/
+		Badge.jsx
+		Board.jsx
+		Column.jsx
+		ConfirmDialog.jsx
+		NavBar.jsx
+		TaskCard.jsx
+		TaskModel.jsx
+		ReUsedComponents/
+			Button.jsx
+			Input.jsx
+	context/
+		DataProvider.jsx
+		ThemeContext.jsx
+	debounce/
+		UseDebounce.jsx
+	styles/
+		*.module.css
+	App.jsx
+	index.js
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Getting Started
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Prerequisites
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- Node.js 18+ (recommended)
+- npm 9+ (recommended)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Install
 
-## Learn More
+```bash
+npm install
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Run in Development
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm start
+```
 
-### Code Splitting
+App runs at:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```text
+http://localhost:3000
+```
 
-### Analyzing the Bundle Size
+### Build for Production
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+npm run build
+```
 
-### Making a Progressive Web App
+### Run Tests
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+npm test
+```
 
-### Advanced Configuration
+## How It Works
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### State Management
 
-### Deployment
+`TasksProvider` in `src/context/DataProvider.jsx` manages:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- task list (`tasks`)
+- filtered view (`filteredTasks`) based on search term
+- add/edit modal visibility
+- delete confirmation dialog visibility
+- selected task id and edit task data
 
-### `npm run build` fails to minify
+`ThemeProvider` in `src/context/ThemeContext.jsx` manages theme mode and syncs it to `localStorage`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Persistence
+
+- Tasks are stored in browser `localStorage` under key: `tasks`
+- Theme is stored in browser `localStorage` under key: `theme`
+
+When the app loads, tasks/theme are restored automatically.
+
+### Drag & Drop
+
+Board drag behavior is implemented with DnD Kit in `src/components/Board.jsx` and task-level sorting in `src/components/TaskCard.jsx` + `src/components/Column.jsx`.
+
+- Drag over a **column** to move task to that column
+- Drag over a **task card** to reorder tasks and/or change column context
+
+## Usage Guide
+
+1. Click **+ Add Task** inside any column.
+2. Fill task fields and click **Save**.
+3. Drag the task using the handle icon to move it.
+4. Use search in the navbar to filter by title/description.
+5. Click edit icon to update a task.
+6. Click delete icon to remove a task (with confirmation).
+7. Use theme button to switch Light/Dark mode.
+8. Click **About** in navbar actions to open app summary panel.
+
+## Scripts
+
+- `npm start` - Start development server
+- `npm run build` - Create production build in `build/`
+- `npm test` - Run tests
+- `npm run eject` - Eject CRA config (irreversible)
+
+## Notes
+
+- If your board appears empty on first launch, this is expected when no tasks exist in `localStorage` yet.
+- Clearing browser storage resets all tasks and theme preference.
+
+## Future Improvements (Optional)
+
+- Due date reminders
+- Task assignees and avatars
+- Filters by priority/label
+- Backend sync (multi-device support)
+
+## Author
+
+- [Abduselam Seid aka(Afis)](https://github.com/afisphbl)
+
+## License
+
+This project is currently unlicensed for public reuse. Add a license file if you plan to distribute it.
