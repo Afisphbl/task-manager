@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import { INITIAL_TASKS } from "../data/taskData";
 
 const tasksContext = createContext();
 
 export function TasksProvider({ children }) {
   const [tasks, setTasks] = useState(INITIAL_TASKS);
+  const [filteredTasks, setFilteredTasks] = useState([...tasks]);
   const [isAdding, setIsAdding] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -12,6 +13,24 @@ export function TasksProvider({ children }) {
   function onUpdateTasks(updatedTasks) {
     setTasks((prev) => [updatedTasks, ...prev]);
   }
+
+  const onSearchTasks = useCallback(
+    (searchTerm) => {
+      const term = searchTerm.trim().toLowerCase();
+
+      if (!term) {
+        setFilteredTasks(tasks);
+        return;
+      }
+
+      const filtered = tasks.filter((task) =>
+        task.title.toLowerCase().includes(term),
+      );
+
+      setFilteredTasks(filtered);
+    },
+    [tasks],
+  );
 
   function onAddTask() {
     setIsAdding(true);
@@ -38,10 +57,12 @@ export function TasksProvider({ children }) {
     <tasksContext.Provider
       value={{
         tasks,
+        filteredTasks,
         isAdding,
         isDialogOpen,
         selectedTaskId,
         onUpdateTasks,
+        onSearchTasks,
         onAddTask,
         onToggleAdd,
         onDeleteTask,

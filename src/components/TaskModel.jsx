@@ -72,7 +72,7 @@ function TaskModel() {
             </div>
 
             <div className={styles.field}>
-              <label className={styles.field__label}>Priority</label>
+              <p className={styles.field__label}>Priority</p>
               <div className={styles.priority__group}>
                 <Button className={btnLowClass}>Low</Button>
                 <Button className={btnMediumClass}>Medium</Button>

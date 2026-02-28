@@ -6,11 +6,11 @@ import ConfirmDialog from "./ConfirmDialog";
 import styles from "../styles/Board.module.css";
 
 function Board() {
-  const { tasks, isDialogOpen, isAdding } = useTasks();
+  const { filteredTasks, isDialogOpen, isAdding } = useTasks();
   const columns = {
-    todo: [...tasks.filter((t) => t.column === "todo")],
-    inprogress: [...tasks.filter((t) => t.column === "inprogress")],
-    done: [...tasks.filter((t) => t.column === "done")],
+    todo: [...filteredTasks.filter((t) => t.column === "todo")],
+    inprogress: [...filteredTasks.filter((t) => t.column === "inprogress")],
+    done: [...filteredTasks.filter((t) => t.column === "done")],
   };
 
   const counts = {

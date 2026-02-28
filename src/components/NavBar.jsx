@@ -1,15 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
+import { useTasks } from "../context/DataProvider";
 import Button from "./ReUsedComponents/Button";
 import Input from "./ReUsedComponents/Input";
 import { Grid2X2Check, Search, MoonIcon, SunIcon } from "lucide-react";
 import styles from "../styles/Navbar.module.css";
 
 function NavBar() {
+  const [search, setSearch] = useState("");
+  const { onSearchTasks } = useTasks();
+
+  useEffect(() => {
+    onSearchTasks(search);
+  }, [search, onSearchTasks]);
+
   return (
     <nav className={styles.navbar}>
       <NavBrand />
-      <NavSearch />
+      <NavSearch search={search} setSearch={setSearch} />
       <NavActions />
     </nav>
   );
@@ -26,7 +34,7 @@ function NavBrand() {
   );
 }
 
-function NavSearch() {
+function NavSearch({ search, setSearch }) {
   return (
     <div className={styles.navbar__search}>
       <span className={styles.navbar__searchIcon}>
@@ -35,10 +43,13 @@ function NavSearch() {
 
       <Input
         className={styles.navbar__searchInput}
+        htmlFor="searchInput"
         type="search"
         name="search"
         id="searchInput"
         placeholder="Search tasks..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
       />
     </div>
   );
