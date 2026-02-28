@@ -2,6 +2,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -10,7 +11,13 @@ import { arrayMove } from "@dnd-kit/sortable";
 const tasksContext = createContext();
 
 export function TasksProvider({ children }) {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(() => {
+    const saved = localStorage.getItem("tasks");
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return [];
+  });
   const [editTask, setEditTask] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [isAdding, setIsAdding] = useState(false);
@@ -82,15 +89,21 @@ export function TasksProvider({ children }) {
   }
 
   function onAddNewTask(newTask) {
-    setTasks((prev) => {
-      if (prev.some((t) => t.id === newTask.id)) {
-        return prev.map((t) => (t.id === newTask.id ? newTask : t));
-      }
-      return [newTask, ...prev];
-    });
+    const t = tasks.find((t) => t.id === newTask.id);
+    if (t) {
+      setTasks((prev) =>
+        prev.map((task) => (task.id === newTask.id ? newTask : task)),
+      );
+    } else {
+      setTasks((prev) => [newTask, ...prev]);
+    }
 
     setEditTask({});
   }
+
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   function onDeleteTask(taskId) {
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
