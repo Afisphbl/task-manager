@@ -30,12 +30,6 @@ function Board() {
 
   const [activeTask, setActiveTask] = useState(null);
 
-  const COLUMNS = [
-    { id: "todo", title: "To Do", dotVar: "--col-todo-dot" },
-    { id: "inprogress", title: "In Progress", dotVar: "--col-inprogress-dot" },
-    { id: "done", title: "Done", dotVar: "--col-done-dot" },
-  ];
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       // Require 5px movement before drag starts (prevents accidental drags)
