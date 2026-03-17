@@ -9,7 +9,7 @@ import Button from "./ReUsedComponents/Button";
 import TaskCard from "./TaskCard";
 import styles from "../styles/Column.module.css";
 
-function Column({ id, title, count, tasks, dotStyle }) {
+function Column({ id, title, count, tasks, dotStyle, className = "" }) {
   const { onAddTask } = useTasks();
 
   const { setNodeRef, isOver } = useDroppable({ id });
@@ -18,7 +18,7 @@ function Column({ id, title, count, tasks, dotStyle }) {
 
   return (
     <section
-      className={`${styles.column} ${isOver ? styles.column__over : ""}`}
+      className={`${styles.column} ${isOver ? styles.column__over : ""} ${className}`}
     >
       <div className={styles.column__header}>
         <div className={styles.column__titleGroup}>

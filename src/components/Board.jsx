@@ -7,6 +7,7 @@ import {
   useSensors,
   closestCorners,
 } from "@dnd-kit/core";
+import { Menu, X } from "lucide-react";
 import { useTasks } from "../context/DataProvider";
 import Column from "./Column";
 import TaskCard from "./TaskCard";
@@ -16,6 +17,12 @@ import styles from "../styles/Board.module.css";
 
 function Board() {
   const { tasks, filteredTasks, isDialogOpen, isAdding, moveTask } = useTasks();
+  const columnOrder = ["todo", "inprogress", "done"];
+  const columnLabels = {
+    todo: "Todo",
+    inprogress: "In Progress",
+    done: "Done",
+  };
   const columns = {
     todo: [...filteredTasks.filter((t) => t.column === "todo")],
     inprogress: [...filteredTasks.filter((t) => t.column === "inprogress")],
@@ -29,6 +36,8 @@ function Board() {
   };
 
   const [activeTask, setActiveTask] = useState(null);
+  const [activeMobileColumn, setActiveMobileColumn] = useState("todo");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -55,6 +64,11 @@ function Board() {
     "var(--col-done-dot)",
   ];
 
+  const handleSelectMobileColumn = (columnId) => {
+    setActiveMobileColumn(columnId);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -62,6 +76,42 @@ function Board() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
+      <div className={styles.mobileControls}>
+        <button
+          type="button"
+          className={styles.mobileMenuBtn}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-column-menu"
+          aria-label="Choose board column"
+          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+        >
+          {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          <span>{columnLabels[activeMobileColumn]}</span>
+        </button>
+
+        {isMobileMenuOpen && (
+          <div id="mobile-column-menu" className={styles.mobileMenu}>
+            {columnOrder.map((columnId) => (
+              <button
+                key={columnId}
+                type="button"
+                className={`${styles.mobileMenuItem} ${
+                  activeMobileColumn === columnId ? styles.mobileMenuItemActive : ""
+                }`}
+                onClick={() => handleSelectMobileColumn(columnId)}
+              >
+                <span
+                  className={styles.mobileMenuDot}
+                  style={{ backgroundColor: dotStyle[columnOrder.indexOf(columnId)] }}
+                />
+                {columnLabels[columnId]}
+                <span className={styles.mobileMenuCount}>{counts[columnId]}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       <section className={styles.board}>
         {isDialogOpen && (
           <ConfirmDialog
@@ -74,7 +124,7 @@ function Board() {
 
         {isAdding && <TaskModel />}
 
-        {Object.keys(columns).map((col, i) => (
+        {columnOrder.map((col, i) => (
           <Column
             id={col}
             key={col}
@@ -82,6 +132,11 @@ function Board() {
             count={counts[col]}
             tasks={columns[col]}
             dotStyle={dotStyle[i]}
+            className={
+              activeMobileColumn === col
+                ? `${styles.mobileVisible}`
+                : `${styles.mobileHidden}`
+            }
           />
         ))}
       </section>
