@@ -112,13 +112,30 @@
   background: var(--accent-blue-light);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 767px) {
   .column {
     min-width: unset;
     max-width: 100%;
     width: 100%;
+    flex: 0 0 auto;
   }
   .column__body {
-    max-height: 400px;
+    flex: 0 1 auto;
+    min-height: 72px;
+    max-height: min(55vh, 360px);
+  }
+
+  .column__empty {
+    min-height: 56px;
+    padding: 12px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .column {
+    min-width: unset;
+    max-width: 100%;
+    width: 100%;
+    flex: 0 0 auto;
   }
 }

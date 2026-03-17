@@ -40,7 +40,7 @@ function Board() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(() =>
     typeof window !== "undefined"
-      ? window.matchMedia("(max-width: 900px)").matches
+      ? window.matchMedia("(max-width: 767px)").matches
       : false,
   );
 
@@ -52,7 +52,7 @@ function Board() {
   );
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 900px)");
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
     const onChange = (event) => setIsMobileView(event.matches);
 
     setIsMobileView(mediaQuery.matches);
