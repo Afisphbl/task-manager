@@ -21,9 +21,12 @@ function TaskCard({
   priority,
   label,
   dueDate,
+  column,
+  dragDisabled = false,
   isDragging,
 }) {
-  const { toggleDialog, selectTask, onEditTask } = useTasks();
+  const { toggleDialog, selectTask, onEditTask, onChangeTaskStage } =
+    useTasks();
   // const priorityColors = `${style[`badge__${priority}`]}`;
   const createdAtDate = dueDate && new Date(dueDate);
   const formattedDate =
@@ -45,7 +48,7 @@ function TaskCard({
     transform,
     transition,
     isDragging: isSortableDragging,
-  } = useSortable({ id });
+  } = useSortable({ id, disabled: dragDisabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -54,6 +57,12 @@ function TaskCard({
 
   const isBeingDragged = isDragging || isSortableDragging;
 
+  const stageOptions = [
+    { value: "todo", label: "Todo" },
+    { value: "inprogress", label: "In Progress" },
+    { value: "done", label: "Done" },
+  ];
+
   return (
     <section
       ref={setNodeRef}
@@ -61,9 +70,9 @@ function TaskCard({
       className={`${styles.card} ${isBeingDragged ? styles.card__dragging : ""}`}
     >
       <div
-        className={styles.card__dragHandle}
-        {...attributes}
-        {...listeners}
+        className={`${styles.card__dragHandle} ${dragDisabled ? styles.card__dragHandleHidden : ""}`}
+        {...(dragDisabled ? {} : attributes)}
+        {...(dragDisabled ? {} : listeners)}
         title="Use this to drag and drop"
       >
         <GripVertical size={14} />
@@ -77,6 +86,24 @@ function TaskCard({
 
         <h3 className={styles.card__title}>{title}</h3>
         <p className={styles.card__desc}>{description}</p>
+
+        <div className={styles.card__stageRow}>
+          <label className={styles.card__stageLabel} htmlFor={`stage-${id}`}>
+            Stage
+          </label>
+          <select
+            id={`stage-${id}`}
+            className={styles.card__stageSelect}
+            value={column}
+            onChange={(e) => onChangeTaskStage(id, e.target.value)}
+          >
+            {stageOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className={styles.card__footer}>
           <p className={styles.card__date}>

@@ -111,6 +111,14 @@ export function TasksProvider({ children }) {
     setIsDialogOpen(false);
   }
 
+  function onChangeTaskStage(taskId, nextColumn) {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId ? { ...task, column: nextColumn } : task,
+      ),
+    );
+  }
+
   function toggleDialog() {
     setIsDialogOpen((prev) => !prev);
   }
@@ -134,6 +142,7 @@ export function TasksProvider({ children }) {
         onToggleAdd,
         onAddNewTask,
         onDeleteTask,
+        onChangeTaskStage,
         toggleDialog,
         selectTask,
         moveTask,

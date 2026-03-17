@@ -9,7 +9,15 @@ import Button from "./ReUsedComponents/Button";
 import TaskCard from "./TaskCard";
 import styles from "../styles/Column.module.css";
 
-function Column({ id, title, count, tasks, dotStyle, className = "" }) {
+function Column({
+  id,
+  title,
+  count,
+  tasks,
+  dotStyle,
+  className = "",
+  dragDisabled = false,
+}) {
   const { onAddTask } = useTasks();
 
   const { setNodeRef, isOver } = useDroppable({ id });
@@ -39,7 +47,7 @@ function Column({ id, title, count, tasks, dotStyle, className = "" }) {
           strategy={verticalListSortingStrategy}
         >
           {tasks.map((task) => (
-            <TaskCard key={task.id} {...task} />
+            <TaskCard key={task.id} {...task} dragDisabled={dragDisabled} />
           ))}
         </SortableContext>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -38,6 +38,11 @@ function Board() {
   const [activeTask, setActiveTask] = useState(null);
   const [activeMobileColumn, setActiveMobileColumn] = useState("todo");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 900px)").matches
+      : false,
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -45,6 +50,16 @@ function Board() {
       activationConstraint: { distance: 5 },
     }),
   );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 900px)");
+    const onChange = (event) => setIsMobileView(event.matches);
+
+    setIsMobileView(mediaQuery.matches);
+    mediaQuery.addEventListener("change", onChange);
+
+    return () => mediaQuery.removeEventListener("change", onChange);
+  }, []);
 
   const handleDragStart = ({ active }) => {
     const task = tasks.find((t) => t.id === active.id);
@@ -69,13 +84,8 @@ function Board() {
     setIsMobileMenuOpen(false);
   };
 
-  return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
+  const boardContent = (
+    <>
       <div className={styles.mobileControls}>
         <button
           type="button"
@@ -96,16 +106,22 @@ function Board() {
                 key={columnId}
                 type="button"
                 className={`${styles.mobileMenuItem} ${
-                  activeMobileColumn === columnId ? styles.mobileMenuItemActive : ""
+                  activeMobileColumn === columnId
+                    ? styles.mobileMenuItemActive
+                    : ""
                 }`}
                 onClick={() => handleSelectMobileColumn(columnId)}
               >
                 <span
                   className={styles.mobileMenuDot}
-                  style={{ backgroundColor: dotStyle[columnOrder.indexOf(columnId)] }}
+                  style={{
+                    backgroundColor: dotStyle[columnOrder.indexOf(columnId)],
+                  }}
                 />
                 {columnLabels[columnId]}
-                <span className={styles.mobileMenuCount}>{counts[columnId]}</span>
+                <span className={styles.mobileMenuCount}>
+                  {counts[columnId]}
+                </span>
               </button>
             ))}
           </div>
@@ -132,6 +148,7 @@ function Board() {
             count={counts[col]}
             tasks={columns[col]}
             dotStyle={dotStyle[i]}
+            dragDisabled={isMobileView}
             className={
               activeMobileColumn === col
                 ? `${styles.mobileVisible}`
@@ -153,6 +170,21 @@ function Board() {
           />
         )}
       </DragOverlay>
+    </>
+  );
+
+  if (isMobileView) {
+    return boardContent;
+  }
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      {boardContent}
     </DndContext>
   );
 }
