@@ -16,7 +16,8 @@ import ConfirmDialog from "./ConfirmDialog";
 import styles from "../styles/Board.module.css";
 
 function Board() {
-  const { tasks, filteredTasks, isDialogOpen, isAdding, moveTask } = useTasks();
+  const { tasks, tasks1, filteredTasks, isDialogOpen, isAdding, moveTask } =
+    useTasks();
   const columnOrder = ["todo", "inprogress", "done"];
   const columnLabels = {
     todo: "Todo",
@@ -62,7 +63,7 @@ function Board() {
   }, []);
 
   const handleDragStart = ({ active }) => {
-    const task = tasks.find((t) => t.id === active.id);
+    const task = tasks1.find((t) => t.id === active.id);
     setActiveTask(task || null);
   };
 
