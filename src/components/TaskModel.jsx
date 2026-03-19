@@ -1,30 +1,31 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useTasks } from "../context/DataProvider";
+import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
 import Button from "./ReUsedComponents/Button";
 import Input from "./ReUsedComponents/Input";
 import styles from "../styles/TaskModal.module.css";
 
-function TaskModel() {
-  const { editTask1, column, onToggleAdd, onAddNewTask } = useTasks();
-  const ref = useRef();
-  const [error, setError] = useState(false);
-  const [newTask, setNewTask] = useState({
-    id: editTask1.id || crypto.randomUUID(),
-    title: editTask1.title || "",
-    description: editTask1.description || "",
-    priority: editTask1.priority || "",
-    label: editTask1.label || "",
-    dueDate: editTask1.dueDate || "",
-    column: editTask1.column || column,
+function TaskModal() {
+  const { state, dispatch } = useTasks();
+  const { editingTask, selectedColumn } = state;
+  const titleInputRef = useRef();
+  const [hasTitleError, setHasTitleError] = useState(false);
+  const [taskDraft, setTaskDraft] = useState({
+    id: editingTask.id || crypto.randomUUID(),
+    title: editingTask.title || "",
+    description: editingTask.description || "",
+    priority: editingTask.priority || "",
+    label: editingTask.label || "",
+    dueDate: editingTask.dueDate || "",
+    column: editingTask.column || selectedColumn,
     createdAt: new Date().toISOString(),
   });
 
   const minDate =
-    newTask.column === "todo" || newTask.column === "inprogress"
+    taskDraft.column === "todo" || taskDraft.column === "inprogress"
       ? new Date().toISOString().split("T")[0]
       : "";
   const maxDate =
-    newTask.column === "done" ? new Date().toISOString().split("T")[0] : "";
+    taskDraft.column === "done" ? new Date().toISOString().split("T")[0] : "";
 
   const closeBtnClass = `${styles.modal__closeBtn}`;
 
@@ -41,58 +42,64 @@ function TaskModel() {
   ];
 
   useEffect(() => {
-    ref.current.focus();
+    titleInputRef.current.focus();
   }, []);
 
-  function handleSubmit(e) {
-    e.preventDefault();
+  function handleFormSubmit(event) {
+    event.preventDefault();
 
-    if (newTask.title === "") {
-      setError(true);
+    if (taskDraft.title === "") {
+      setHasTitleError(true);
       return;
     }
 
-    onAddNewTask(newTask);
-    onToggleAdd();
-    setError(false);
-    setNewTask({
+    dispatch({ type: TASK_ACTIONS.UPSERT_TASK, payload: taskDraft });
+    dispatch({ type: TASK_ACTIONS.TOGGLE_TASK_MODAL });
+    setHasTitleError(false);
+    setTaskDraft({
       title: "",
       description: "",
       priority: "",
       label: "",
       dueDate: "",
-      column: column,
+      column: selectedColumn,
       createdAt: new Date().toISOString(),
     });
   }
   return (
-    <div className={styles.overlay} onClick={onToggleAdd}>
+    <div
+      className={styles.overlay}
+      onClick={() => dispatch({ type: TASK_ACTIONS.TOGGLE_TASK_MODAL })}
+    >
       <section className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modal__header}>
           <h2 className={styles.modal__title}>Create New Task</h2>
-          <Button className={closeBtnClass} onClick={onToggleAdd}>
+          <Button
+            className={closeBtnClass}
+            onClick={() => dispatch({ type: TASK_ACTIONS.TOGGLE_TASK_MODAL })}
+          >
             &times;
           </Button>
         </div>
 
-        <form className={styles.modal__form} onSubmit={handleSubmit}>
+        <form className={styles.modal__form} onSubmit={handleFormSubmit}>
           <div className={styles.field}>
             <Input
               htmlFor="title"
-              ref={ref}
-              className={`${styles.field__input} ${error ? styles.field__input__error : ""}`}
+              ref={titleInputRef}
+              className={`${styles.field__input} ${hasTitleError ? styles.field__input__error : ""}`}
               labelClassName={styles.field__label}
               type="text"
               id="title"
               placeholder="e.g., Fix navigation bug on mobile"
-              value={newTask.title}
+              value={taskDraft.title}
               onChange={(e) =>
-                setNewTask({ ...newTask, title: e.target.value })
+                setTaskDraft({ ...taskDraft, title: e.target.value })
               }
             >
               Task Title <span className={styles.field__required}>*</span>
             </Input>
-            {error && (
+            {hasTitleError && (
               <p className={styles.field__error}>Task title is required</p>
             )}
           </div>
@@ -106,9 +113,9 @@ function TaskModel() {
               id="desc"
               className={styles.field__textarea}
               placeholder="Add detailed information about the task..."
-              value={newTask.description}
+              value={taskDraft.description}
               onChange={(e) =>
-                setNewTask({ ...newTask, description: e.target.value })
+                setTaskDraft({ ...taskDraft, description: e.target.value })
               }
             ></textarea>
           </div>
@@ -122,9 +129,9 @@ function TaskModel() {
                 name="column"
                 id="column"
                 className={styles.field__select}
-                value={newTask.column}
+                value={taskDraft.column}
                 onChange={(e) =>
-                  setNewTask({ ...newTask, column: e.target.value })
+                  setTaskDraft({ ...taskDraft, column: e.target.value })
                 }
               >
                 <option value="todo">To Do</option>
@@ -140,9 +147,9 @@ function TaskModel() {
                   <Button
                     type="button"
                     key={option.value}
-                    className={`${styles[`${priorityClass}`]} ${styles[`${priorityClass}__${option.value}`]} ${newTask.priority === option.value ? styles[`${priorityClass}__active`] : ""}`}
+                    className={`${styles[`${priorityClass}`]} ${styles[`${priorityClass}__${option.value}`]} ${taskDraft.priority === option.value ? styles[`${priorityClass}__active`] : ""}`}
                     onClick={() =>
-                      setNewTask({ ...newTask, priority: option.value })
+                      setTaskDraft({ ...taskDraft, priority: option.value })
                     }
                   >
                     {option.label}
@@ -161,9 +168,9 @@ function TaskModel() {
                 type="text"
                 id="label"
                 placeholder="e.g., Dev, Design, Marketing"
-                value={newTask.label}
+                value={taskDraft.label}
                 onChange={(e) =>
-                  setNewTask({ ...newTask, label: e.target.value })
+                  setTaskDraft({ ...taskDraft, label: e.target.value })
                 }
               >
                 Label
@@ -177,11 +184,11 @@ function TaskModel() {
                 labelClassName={styles.field__label}
                 type="date"
                 id="dueDate"
-                value={newTask.dueDate}
+                value={taskDraft.dueDate}
                 min={minDate}
                 max={maxDate}
                 onChange={(e) =>
-                  setNewTask({ ...newTask, dueDate: e.target.value })
+                  setTaskDraft({ ...taskDraft, dueDate: e.target.value })
                 }
               >
                 Due Date
@@ -192,7 +199,7 @@ function TaskModel() {
           <div className={styles.modal__actions}>
             <Button
               className={cancelBtnClass}
-              onClick={onToggleAdd}
+              onClick={() => dispatch({ type: TASK_ACTIONS.TOGGLE_TASK_MODAL })}
               type="button"
             >
               Cancel
@@ -207,4 +214,4 @@ function TaskModel() {
   );
 }
 
-export default TaskModel;
+export default TaskModal;

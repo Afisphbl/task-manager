@@ -8,16 +8,16 @@ import {
   closestCorners,
 } from "@dnd-kit/core";
 import { Menu, X } from "lucide-react";
-import { useTasks } from "../context/DataProvider";
+import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
 import Column from "./Column";
 import TaskCard from "./TaskCard";
-import TaskModel from "./TaskModel";
+import TaskModal from "./TaskModel";
 import ConfirmDialog from "./ConfirmDialog";
 import styles from "../styles/Board.module.css";
 
 function Board() {
-  const { tasks1, filteredTasks, isDialogOpen, isAdding1, moveTask } =
-    useTasks();
+  const { state, filteredTasks, dispatch } = useTasks();
+  const { tasks, isDeleteDialogOpen, isTaskModalOpen } = state;
   const columnOrder = ["todo", "inprogress", "done"];
   const columnLabels = {
     todo: "Todo",
@@ -25,9 +25,11 @@ function Board() {
     done: "Done",
   };
   const columns = {
-    todo: [...filteredTasks.filter((t) => t.column === "todo")],
-    inprogress: [...filteredTasks.filter((t) => t.column === "inprogress")],
-    done: [...filteredTasks.filter((t) => t.column === "done")],
+    todo: [...filteredTasks.filter((task) => task.column === "todo")],
+    inprogress: [
+      ...filteredTasks.filter((task) => task.column === "inprogress"),
+    ],
+    done: [...filteredTasks.filter((task) => task.column === "done")],
   };
 
   const counts = {
@@ -53,25 +55,29 @@ function Board() {
   );
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-    const onChange = (event) => setIsMobileView(event.matches);
+    const mobileMediaQuery = window.matchMedia("(max-width: 767px)");
+    const handleMediaQueryChange = (event) => setIsMobileView(event.matches);
 
-    setIsMobileView(mediaQuery.matches);
-    mediaQuery.addEventListener("change", onChange);
+    setIsMobileView(mobileMediaQuery.matches);
+    mobileMediaQuery.addEventListener("change", handleMediaQueryChange);
 
-    return () => mediaQuery.removeEventListener("change", onChange);
+    return () =>
+      mobileMediaQuery.removeEventListener("change", handleMediaQueryChange);
   }, []);
 
   const handleDragStart = ({ active }) => {
-    const task = tasks1.find((t) => t.id === active.id);
-    setActiveTask(task || null);
+    const currentTask = tasks.find((task) => task.id === active.id);
+    setActiveTask(currentTask || null);
   };
 
   const handleDragEnd = ({ active, over }) => {
     setActiveTask(null);
     if (!over) return;
     if (active.id === over.id) return;
-    moveTask(active.id, over.id);
+    dispatch({
+      type: TASK_ACTIONS.MOVE_TASK,
+      payload: { activeId: active.id, overId: over.id },
+    });
   };
 
   const dotStyle = [
@@ -130,7 +136,7 @@ function Board() {
       </div>
 
       <section className={styles.board}>
-        {isDialogOpen && (
+        {isDeleteDialogOpen && (
           <ConfirmDialog
             task="Delete Task?"
             desc="This action cannot be undone. The task will be permanently removed."
@@ -139,7 +145,7 @@ function Board() {
           />
         )}
 
-        {isAdding1 && <TaskModel />}
+        {isTaskModalOpen && <TaskModal />}
 
         {columnOrder.map((col, i) => (
           <Column

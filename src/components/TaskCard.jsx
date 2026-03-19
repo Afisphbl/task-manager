@@ -2,16 +2,16 @@ import React from "react";
 import { GripVertical, Calendar, LucideEdit, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useTasks } from "../context/DataProvider";
+import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
 import Button from "./ReUsedComponents/Button";
 import Badge from "./Badge";
 import styles from "../styles/TaskCard.module.css";
-import style from "../styles/Badge.module.css";
+import badgeStyles from "../styles/Badge.module.css";
 
-const priorityColors = {
-  low: style.badge__low,
-  medium: style.badge__medium,
-  high: style.badge__high,
+const priorityClassByLevel = {
+  low: badgeStyles.badge__low,
+  medium: badgeStyles.badge__medium,
+  high: badgeStyles.badge__high,
 };
 
 function TaskCard({
@@ -25,20 +25,17 @@ function TaskCard({
   dragDisabled = false,
   isDragging,
 }) {
-  const { toggleDialog, selectTask, onEditTask, onChangeTaskStage } =
-    useTasks();
-  // const priorityColors = `${style[`badge__${priority}`]}`;
-  const createdAtDate = dueDate && new Date(dueDate);
+  const { dispatch } = useTasks();
+  const dueDateValue = dueDate && new Date(dueDate);
   const formattedDate =
     dueDate &&
-    createdAtDate.toLocaleDateString("en-US", {
+    dueDateValue.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     });
 
-  function handleDelete(id) {
-    selectTask(id);
-    toggleDialog();
+  function handleDeleteRequest(taskId) {
+    dispatch({ type: TASK_ACTIONS.SELECT_TASK_FOR_DELETE, payload: taskId });
   }
 
   const {
@@ -50,7 +47,7 @@ function TaskCard({
     isDragging: isSortableDragging,
   } = useSortable({ id, disabled: dragDisabled });
 
-  const style = {
+  const cardStyle = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
@@ -66,7 +63,7 @@ function TaskCard({
   return (
     <section
       ref={setNodeRef}
-      style={style}
+      style={cardStyle}
       className={`${styles.card} ${isBeingDragged ? styles.card__dragging : ""}`}
     >
       <div
@@ -81,7 +78,7 @@ function TaskCard({
       <div className={styles.card__content}>
         <div className={styles.card__meta}>
           {label && <span className={styles.card__label}>{label}</span>}
-          <Badge className={priorityColors[priority]}>{priority}</Badge>
+          <Badge className={priorityClassByLevel[priority]}>{priority}</Badge>
         </div>
 
         <h3 className={styles.card__title}>{title}</h3>
@@ -95,7 +92,12 @@ function TaskCard({
             id={`stage-${id}`}
             className={styles.card__stageSelect}
             value={column}
-            onChange={(e) => onChangeTaskStage(id, e.target.value)}
+            onChange={(e) =>
+              dispatch({
+                type: TASK_ACTIONS.CHANGE_TASK_STAGE,
+                payload: { taskId: id, nextColumn: e.target.value },
+              })
+            }
           >
             {stageOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -115,7 +117,9 @@ function TaskCard({
             <Button
               type="button"
               className={styles.card__actionBtn}
-              onClick={() => onEditTask({ id })}
+              onClick={() =>
+                dispatch({ type: TASK_ACTIONS.START_EDIT_TASK, payload: id })
+              }
             >
               <LucideEdit size={14} />
             </Button>
@@ -125,7 +129,7 @@ function TaskCard({
               className={
                 styles.card__actionBtn + " " + styles.card__actionBtn__delete
               }
-              onClick={() => handleDelete(id)}
+              onClick={() => handleDeleteRequest(id)}
             >
               <Trash2 size={14} />
             </Button>

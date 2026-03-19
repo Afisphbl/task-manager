@@ -4,7 +4,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useTasks } from "../context/DataProvider";
+import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
 import Button from "./ReUsedComponents/Button";
 import TaskCard from "./TaskCard";
 import styles from "../styles/Column.module.css";
@@ -18,7 +18,7 @@ function Column({
   className = "",
   dragDisabled = false,
 }) {
-  const { onAddTask } = useTasks();
+  const { dispatch } = useTasks();
 
   const { setNodeRef, isOver } = useDroppable({ id });
 
@@ -51,7 +51,15 @@ function Column({
           ))}
         </SortableContext>
       </div>
-      <Button className={btnClass} onClick={() => onAddTask(title)}>
+      <Button
+        className={btnClass}
+        onClick={() =>
+          dispatch({
+            type: TASK_ACTIONS.OPEN_TASK_MODAL_FOR_COLUMN,
+            payload: title,
+          })
+        }
+      >
         + Add Task
       </Button>
     </section>

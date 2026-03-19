@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
-import { useTasks } from "../context/DataProvider";
+import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
 import useDebounce from "../debounce/UseDebounce";
 import Button from "./ReUsedComponents/Button";
 import Input from "./ReUsedComponents/Input";
@@ -15,13 +15,13 @@ import styles from "../styles/Navbar.module.css";
 
 function NavBar() {
   const [search, setSearch] = useState("");
-  const { onSearchTasks } = useTasks();
+  const { dispatch } = useTasks();
 
   const debouncedSearch = useDebounce(search, 700);
 
   useEffect(() => {
-    onSearchTasks(debouncedSearch);
-  }, [debouncedSearch, onSearchTasks]);
+    dispatch({ type: TASK_ACTIONS.SET_SEARCH_TERM, payload: debouncedSearch });
+  }, [debouncedSearch, dispatch]);
 
   return (
     <nav className={styles.navbar}>
@@ -68,7 +68,7 @@ function NavActions() {
   const { theme, onToggleTheme } = useTheme();
   const [showSummary, setShowSummary] = useState(false);
 
-  function onToggleSummary() {
+  function handleSummaryToggle() {
     setShowSummary((prev) => !prev);
   }
 
@@ -77,7 +77,7 @@ function NavActions() {
       <Button
         className={styles.navbar__aboutBtn}
         type="button"
-        onClick={onToggleSummary}
+        onClick={handleSummaryToggle}
       >
         <CircleHelp size={16} />
         About

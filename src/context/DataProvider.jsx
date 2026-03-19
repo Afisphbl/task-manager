@@ -1,246 +1,196 @@
 import React, {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
   useReducer,
-  useState,
 } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
 
-const tasksContext = createContext();
+const TasksContext = createContext();
 
-const initialState = {
-  tasks1: localStorage.getItem("tasks")
+const INITIAL_STATE = {
+  tasks: localStorage.getItem("tasks")
     ? JSON.parse(localStorage.getItem("tasks"))
     : [],
-  editTask1: {},
-  searchTerm1: "",
-  isAdding1: false,
-  column: "",
-  isDialogOpen: false,
-  selectedTaskId: null,
+  editingTask: {},
+  searchTerm: "",
+  isTaskModalOpen: false,
+  selectedColumn: "",
+  isDeleteDialogOpen: false,
+  pendingDeleteTaskId: null,
 };
 
-const taskReducer = (state, action) => {
-  switch (action.type) {
-    case "onNewTaskAdd":
-      const t = state.tasks1.find((t) => t.id === action.payload.id);
-      let updatedTasks;
+export const TASK_ACTIONS = {
+  UPSERT_TASK: "UPSERT_TASK",
+  CHANGE_TASK_STAGE: "CHANGE_TASK_STAGE",
+  MOVE_TASK: "MOVE_TASK",
+  START_EDIT_TASK: "START_EDIT_TASK",
+  SET_SEARCH_TERM: "SET_SEARCH_TERM",
+  TOGGLE_TASK_MODAL: "TOGGLE_TASK_MODAL",
+  OPEN_TASK_MODAL_FOR_COLUMN: "OPEN_TASK_MODAL_FOR_COLUMN",
+  DELETE_TASK: "DELETE_TASK",
+  TOGGLE_DELETE_DIALOG: "TOGGLE_DELETE_DIALOG",
+  SELECT_TASK_FOR_DELETE: "SELECT_TASK_FOR_DELETE",
+};
 
-      if (t) {
-        updatedTasks = state.tasks1.map((task) =>
+const tasksReducer = (state, action) => {
+  switch (action.type) {
+    case TASK_ACTIONS.UPSERT_TASK: {
+      const existingTask = state.tasks.find(
+        (taskItem) => taskItem.id === action.payload.id,
+      );
+      let nextTasks;
+
+      if (existingTask) {
+        nextTasks = state.tasks.map((task) =>
           task.id === action.payload.id ? action.payload : task,
         );
       } else {
-        updatedTasks = [action.payload, ...state.tasks1];
+        nextTasks = [action.payload, ...state.tasks];
       }
 
       return {
         ...state,
-        tasks1: updatedTasks,
-        editTask1: {},
+        tasks: nextTasks,
+        editingTask: {},
       };
+    }
 
-    case "onChangeTaskStage":
+    case TASK_ACTIONS.CHANGE_TASK_STAGE:
       const { taskId, nextColumn } = action.payload;
       return {
         ...state,
-        tasks1: state.tasks1.map((task) =>
+        tasks: state.tasks.map((task) =>
           task.id === taskId ? { ...task, column: nextColumn } : task,
         ),
       };
 
-    case "onMoveTask": {
+    case TASK_ACTIONS.MOVE_TASK: {
       const { activeId, overId } = action.payload;
-      const oldIndex = state.tasks1.findIndex((t) => t.id === activeId);
+      const fromIndex = state.tasks.findIndex((task) => task.id === activeId);
 
-      if (oldIndex === -1) return state;
+      if (fromIndex === -1) return state;
 
-      const updated = [...state.tasks1];
+      const nextTasks = [...state.tasks];
       const isColumnDrop = ["todo", "inprogress", "done"].includes(overId);
 
       if (isColumnDrop) {
-        if (updated[oldIndex].column === overId) return state;
-        updated[oldIndex] = {
-          ...updated[oldIndex],
+        if (nextTasks[fromIndex].column === overId) return state;
+        nextTasks[fromIndex] = {
+          ...nextTasks[fromIndex],
           column: overId,
         };
         return {
           ...state,
-          tasks1: updated,
+          tasks: nextTasks,
         };
       }
 
-      const newIndex = state.tasks1.findIndex((t) => t.id === overId);
-      if (newIndex === -1) return state;
+      const toIndex = state.tasks.findIndex((task) => task.id === overId);
+      if (toIndex === -1) return state;
 
       // Update column when crossing columns
-      updated[oldIndex] = {
-        ...updated[oldIndex],
-        column: updated[newIndex].column,
+      nextTasks[fromIndex] = {
+        ...nextTasks[fromIndex],
+        column: nextTasks[toIndex].column,
       };
 
       return {
         ...state,
-        tasks1: arrayMove(updated, oldIndex, newIndex),
+        tasks: arrayMove(nextTasks, fromIndex, toIndex),
       };
     }
 
-    case "onEditTask":
-      const task = state.tasks1.find((t) => t.id === action.payload);
+    case TASK_ACTIONS.START_EDIT_TASK:
+      const taskToEdit = state.tasks.find((task) => task.id === action.payload);
       return {
         ...state,
-        editTask1: task,
-        isAdding1: true,
+        editingTask: taskToEdit,
+        isTaskModalOpen: true,
       };
 
-    case "onSearchTasks":
+    case TASK_ACTIONS.SET_SEARCH_TERM:
       return {
         ...state,
-        searchTerm1: action.payload,
+        searchTerm: action.payload,
       };
 
-    case "onToggleAdd":
+    case TASK_ACTIONS.TOGGLE_TASK_MODAL:
       return {
         ...state,
-        isAdding1: !state.isAdding1,
-        column: "",
-        editTask1: {},
+        isTaskModalOpen: !state.isTaskModalOpen,
+        selectedColumn: "",
+        editingTask: {},
       };
 
-    case "onAddTask":
+    case TASK_ACTIONS.OPEN_TASK_MODAL_FOR_COLUMN:
       return {
         ...state,
-        isAdding1: true,
-        column: action.payload,
+        isTaskModalOpen: true,
+        selectedColumn: action.payload,
       };
 
-    case "onDeleteTask":
+    case TASK_ACTIONS.DELETE_TASK:
       return {
         ...state,
-        tasks1: state.tasks1.filter((t) => t.id !== action.payload),
-        isDialogOpen: false,
-        selectedTaskId: null,
+        tasks: state.tasks.filter((task) => task.id !== action.payload),
+        isDeleteDialogOpen: false,
+        pendingDeleteTaskId: null,
       };
 
-    case "onToggleDialog":
+    case TASK_ACTIONS.TOGGLE_DELETE_DIALOG:
       return {
         ...state,
-        isDialogOpen: !state.isDialogOpen,
+        isDeleteDialogOpen: !state.isDeleteDialogOpen,
       };
 
-    case "onSelectTask":
+    case TASK_ACTIONS.SELECT_TASK_FOR_DELETE:
       return {
         ...state,
-        selectedTaskId: action.payload,
+        pendingDeleteTaskId: action.payload,
+        isDeleteDialogOpen: !state.isDeleteDialogOpen,
       };
 
     default:
-      throw new Error("No action type found in taskReducer");
+      throw new Error("No action type found in tasksReducer");
   }
 };
 
 export function TasksProvider({ children }) {
-  const [
-    {
-      tasks1,
-      editTask1,
-      searchTerm1,
-      isAdding1,
-      column,
-      isDialogOpen,
-      selectedTaskId,
-    },
-    dispatch,
-  ] = useReducer(taskReducer, initialState);
-  // const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const [state, dispatch] = useReducer(tasksReducer, INITIAL_STATE);
 
   const filteredTasks = useMemo(() => {
-    const term = searchTerm1.trim().toLowerCase();
+    const term = state.searchTerm.trim().toLowerCase();
 
-    if (!term) return tasks1;
+    if (!term) return state.tasks;
 
-    return tasks1.filter(
+    return state.tasks.filter(
       (task) =>
         task.title.toLowerCase().includes(term) ||
         task.description.toLowerCase().includes(term),
     );
-  }, [tasks1, searchTerm1]);
-
-  function moveTask(activeId, overId) {
-    dispatch({ type: "onMoveTask", payload: { activeId, overId } });
-  }
-
-  function onEditTask({ id }) {
-    dispatch({ type: "onEditTask", payload: id });
-  }
-
-  const onSearchTasks = useCallback((searchTerm) => {
-    dispatch({ type: "onSearchTasks", payload: searchTerm });
-  }, []);
-
-  function onAddTask(col) {
-    dispatch({ type: "onAddTask", payload: col });
-  }
-
-  function onToggleAdd() {
-    dispatch({ type: "onToggleAdd" });
-  }
-
-  function onAddNewTask(newTask) {
-    dispatch({ type: "onNewTaskAdd", payload: newTask });
-  }
+  }, [state.tasks, state.searchTerm]);
 
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks1));
-  }, [tasks1]);
+    localStorage.setItem("tasks", JSON.stringify(state.tasks));
+  }, [state.tasks]);
 
-  function onDeleteTask(taskId) {
-    dispatch({ type: "onDeleteTask", payload: taskId });
-  }
-
-  function onChangeTaskStage(taskId, nextColumn) {
-    dispatch({ type: "onChangeTaskStage", payload: { taskId, nextColumn } });
-  }
-
-  function toggleDialog() {
-    dispatch({ type: "onToggleDialog" });
-  }
-
-  function selectTask(id) {
-    dispatch({ type: "onSelectTask", payload: id });
-  }
   return (
-    <tasksContext.Provider
+    <TasksContext.Provider
       value={{
-        tasks1,
-        editTask1,
+        state,
         filteredTasks,
-        isAdding1,
-        column,
-        isDialogOpen,
-        selectedTaskId,
-        onEditTask,
-        onSearchTasks,
-        onAddTask,
-        onToggleAdd,
-        onAddNewTask,
-        onDeleteTask,
-        onChangeTaskStage,
-        toggleDialog,
-        selectTask,
-        moveTask,
+        dispatch,
       }}
     >
       {children}
-    </tasksContext.Provider>
+    </TasksContext.Provider>
   );
 }
 
 export function useTasks() {
-  const context = useContext(tasksContext);
+  const context = useContext(TasksContext);
   if (context === undefined) {
     throw new Error("useTasks must be used within a TasksProvider");
   }
