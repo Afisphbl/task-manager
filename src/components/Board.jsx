@@ -16,7 +16,7 @@ import ConfirmDialog from "./ConfirmDialog";
 import styles from "../styles/Board.module.css";
 
 function Board() {
-  const { tasks, tasks1, filteredTasks, isDialogOpen, isAdding, moveTask } =
+  const { tasks1, filteredTasks, isDialogOpen, isAdding1, moveTask } =
     useTasks();
   const columnOrder = ["todo", "inprogress", "done"];
   const columnLabels = {
@@ -139,7 +139,7 @@ function Board() {
           />
         )}
 
-        {isAdding && <TaskModel />}
+        {isAdding1 && <TaskModel />}
 
         {columnOrder.map((col, i) => (
           <Column

@@ -5,17 +5,17 @@ import Input from "./ReUsedComponents/Input";
 import styles from "../styles/TaskModal.module.css";
 
 function TaskModel() {
-  const { editTask, column, onToggleAdd, onAddNewTask } = useTasks();
+  const { editTask1, column, onToggleAdd, onAddNewTask } = useTasks();
   const ref = useRef();
   const [error, setError] = useState(false);
   const [newTask, setNewTask] = useState({
-    id: editTask.id || crypto.randomUUID(),
-    title: editTask.title || "",
-    description: editTask.description || "",
-    priority: editTask.priority || "",
-    label: editTask.label || "",
-    dueDate: editTask.dueDate || "",
-    column: editTask.column || column,
+    id: editTask1.id || crypto.randomUUID(),
+    title: editTask1.title || "",
+    description: editTask1.description || "",
+    priority: editTask1.priority || "",
+    label: editTask1.label || "",
+    dueDate: editTask1.dueDate || "",
+    column: editTask1.column || column,
     createdAt: new Date().toISOString(),
   });
 

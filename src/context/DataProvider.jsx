@@ -17,6 +17,10 @@ const initialState = {
     : [],
   editTask1: {},
   searchTerm1: "",
+  isAdding1: false,
+  column: "",
+  isDialogOpen: false,
+  selectedTaskId: null,
 };
 
 const taskReducer = (state, action) => {
@@ -84,10 +88,53 @@ const taskReducer = (state, action) => {
       };
     }
 
+    case "onEditTask":
+      const task = state.tasks1.find((t) => t.id === action.payload);
+      return {
+        ...state,
+        editTask1: task,
+        isAdding1: true,
+      };
+
+    case "onSearchTasks":
+      return {
+        ...state,
+        searchTerm1: action.payload,
+      };
+
+    case "onToggleAdd":
+      return {
+        ...state,
+        isAdding1: !state.isAdding1,
+        column: "",
+        editTask1: {},
+      };
+
+    case "onAddTask":
+      return {
+        ...state,
+        isAdding1: true,
+        column: action.payload,
+      };
+
     case "onDeleteTask":
       return {
         ...state,
         tasks1: state.tasks1.filter((t) => t.id !== action.payload),
+        isDialogOpen: false,
+        selectedTaskId: null,
+      };
+
+    case "onToggleDialog":
+      return {
+        ...state,
+        isDialogOpen: !state.isDialogOpen,
+      };
+
+    case "onSelectTask":
+      return {
+        ...state,
+        selectedTaskId: action.payload,
       };
 
     default:
@@ -96,19 +143,22 @@ const taskReducer = (state, action) => {
 };
 
 export function TasksProvider({ children }) {
-  const [{ tasks1, editTask1, searchTerm1 }, dispatch] = useReducer(
-    taskReducer,
-    initialState,
-  );
-  const [editTask, setEditTask] = useState({});
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
-  const [column, setColumn] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const [
+    {
+      tasks1,
+      editTask1,
+      searchTerm1,
+      isAdding1,
+      column,
+      isDialogOpen,
+      selectedTaskId,
+    },
+    dispatch,
+  ] = useReducer(taskReducer, initialState);
+  // const [selectedTaskId, setSelectedTaskId] = useState(null);
 
   const filteredTasks = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
+    const term = searchTerm1.trim().toLowerCase();
 
     if (!term) return tasks1;
 
@@ -117,31 +167,26 @@ export function TasksProvider({ children }) {
         task.title.toLowerCase().includes(term) ||
         task.description.toLowerCase().includes(term),
     );
-  }, [tasks1, searchTerm]);
+  }, [tasks1, searchTerm1]);
 
   function moveTask(activeId, overId) {
     dispatch({ type: "onMoveTask", payload: { activeId, overId } });
   }
 
   function onEditTask({ id }) {
-    const task = tasks1.find((t) => t.id === id);
-    setEditTask(task);
-    setIsAdding(true);
+    dispatch({ type: "onEditTask", payload: id });
   }
 
   const onSearchTasks = useCallback((searchTerm) => {
-    setSearchTerm(searchTerm);
+    dispatch({ type: "onSearchTasks", payload: searchTerm });
   }, []);
 
   function onAddTask(col) {
-    setIsAdding(true);
-    setColumn(col);
-    setEditTask({});
+    dispatch({ type: "onAddTask", payload: col });
   }
 
   function onToggleAdd() {
-    setIsAdding((prev) => !prev);
-    setColumn("");
+    dispatch({ type: "onToggleAdd" });
   }
 
   function onAddNewTask(newTask) {
@@ -154,8 +199,6 @@ export function TasksProvider({ children }) {
 
   function onDeleteTask(taskId) {
     dispatch({ type: "onDeleteTask", payload: taskId });
-    setSelectedTaskId(null);
-    setIsDialogOpen(false);
   }
 
   function onChangeTaskStage(taskId, nextColumn) {
@@ -163,19 +206,19 @@ export function TasksProvider({ children }) {
   }
 
   function toggleDialog() {
-    setIsDialogOpen((prev) => !prev);
+    dispatch({ type: "onToggleDialog" });
   }
 
   function selectTask(id) {
-    setSelectedTaskId(id);
+    dispatch({ type: "onSelectTask", payload: id });
   }
   return (
     <tasksContext.Provider
       value={{
         tasks1,
-        editTask,
+        editTask1,
         filteredTasks,
-        isAdding,
+        isAdding1,
         column,
         isDialogOpen,
         selectedTaskId,
