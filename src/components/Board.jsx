@@ -1,95 +1,33 @@
-import React, { useEffect, useState } from "react";
-import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  closestCorners,
-} from "@dnd-kit/core";
+import React from "react";
+import { DndContext, DragOverlay, closestCorners } from "@dnd-kit/core";
 import { Menu, X } from "lucide-react";
-import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
+// import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
 import Column from "./Column";
 import TaskCard from "./TaskCard";
 import TaskModal from "./TaskModel";
 import ConfirmDialog from "./ConfirmDialog";
+import { useBoard } from "../context/BoardContext";
 import styles from "../styles/Board.module.css";
 
 function Board() {
-  const { state, filteredTasks, dispatch } = useTasks();
-  const { tasks, isDeleteDialogOpen, isTaskModalOpen } = state;
-  const columnOrder = ["todo", "inprogress", "done"];
-  const columnLabels = {
-    todo: "Todo",
-    inprogress: "In Progress",
-    done: "Done",
-  };
-  const columns = {
-    todo: [...filteredTasks.filter((task) => task.column === "todo")],
-    inprogress: [
-      ...filteredTasks.filter((task) => task.column === "inprogress"),
-    ],
-    done: [...filteredTasks.filter((task) => task.column === "done")],
-  };
+  const {
+    boardState,
+    isDeleteDialogOpen,
+    isTaskModalOpen,
+    columnOrder,
+    columnLabels,
+    columns,
+    counts,
+    sensors,
+    handleDragStart,
+    handleDragEnd,
+    dotStyle,
+    handleSelectMobileColumn,
+    setIsMobileMenuOpen,
+  } = useBoard();
 
-  const counts = {
-    todo: columns.todo.length,
-    inprogress: columns.inprogress.length,
-    done: columns.done.length,
-  };
-
-  const [activeTask, setActiveTask] = useState(null);
-  const [activeMobileColumn, setActiveMobileColumn] = useState("todo");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobileView, setIsMobileView] = useState(() =>
-    typeof window !== "undefined"
-      ? window.matchMedia("(max-width: 767px)").matches
-      : false,
-  );
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      // Require 5px movement before drag starts (prevents accidental drags)
-      activationConstraint: { distance: 5 },
-    }),
-  );
-
-  useEffect(() => {
-    const mobileMediaQuery = window.matchMedia("(max-width: 767px)");
-    const handleMediaQueryChange = (event) => setIsMobileView(event.matches);
-
-    setIsMobileView(mobileMediaQuery.matches);
-    mobileMediaQuery.addEventListener("change", handleMediaQueryChange);
-
-    return () =>
-      mobileMediaQuery.removeEventListener("change", handleMediaQueryChange);
-  }, []);
-
-  const handleDragStart = ({ active }) => {
-    const currentTask = tasks.find((task) => task.id === active.id);
-    setActiveTask(currentTask || null);
-  };
-
-  const handleDragEnd = ({ active, over }) => {
-    setActiveTask(null);
-    if (!over) return;
-    if (active.id === over.id) return;
-    dispatch({
-      type: TASK_ACTIONS.MOVE_TASK,
-      payload: { activeId: active.id, overId: over.id },
-    });
-  };
-
-  const dotStyle = [
-    "var(--col-todo-dot)",
-    "var(--col-inprogress-dot)",
-    "var(--col-done-dot)",
-  ];
-
-  const handleSelectMobileColumn = (columnId) => {
-    setActiveMobileColumn(columnId);
-    setIsMobileMenuOpen(false);
-  };
+  const { activeTask, activeMobileColumn, isMobileMenuOpen, isMobileView } =
+    boardState;
 
   const boardContent = (
     <>
@@ -100,7 +38,7 @@ function Board() {
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-column-menu"
           aria-label="Choose board column"
-          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          onClick={() => setIsMobileMenuOpen(isMobileMenuOpen ? false : true)}
         >
           {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           <span>{columnLabels[activeMobileColumn]}</span>

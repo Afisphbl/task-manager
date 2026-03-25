@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import styles from "../styles/Navbar.module.css";
 
-function NavBar() {
+function NavBar({ children }) {
   const [search, setSearch] = useState("");
   const { dispatch } = useTasks();
 
@@ -27,7 +27,7 @@ function NavBar() {
     <nav className={styles.navbar}>
       <NavBrand />
       <NavSearch search={search} setSearch={setSearch} />
-      <NavActions />
+      {children}
     </nav>
   );
 }
@@ -64,7 +64,7 @@ function NavSearch({ search, setSearch }) {
   );
 }
 
-function NavActions() {
+export function NavActions() {
   const { theme, onToggleTheme } = useTheme();
   const [showSummary, setShowSummary] = useState(false);
 
