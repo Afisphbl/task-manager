@@ -4,21 +4,20 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
+import { TASK_ACTIONS, useTasksDispatch } from "../context/DataProvider";
+import { useBoardData } from "../context/BoardContext";
 import Button from "./ReUsedComponents/Button";
 import TaskCard from "./TaskCard";
 import styles from "../styles/Column.module.css";
 
-function Column({
-  id,
-  title,
-  count,
-  tasks,
-  dotStyle,
-  className = "",
-  dragDisabled = false,
-}) {
-  const { dispatch } = useTasks();
+function Column({ id, className = "", dragDisabled = false }) {
+  const dispatch = useTasksDispatch();
+  const { columnOrder, columns, counts, dotStyle } = useBoardData();
+
+  const tasks = columns[id] || [];
+  const count = counts[id] || 0;
+  const title = id;
+  const dotColor = dotStyle[columnOrder.indexOf(id)];
 
   const { setNodeRef, isOver } = useDroppable({ id });
 
@@ -32,7 +31,7 @@ function Column({
         <div className={styles.column__titleGroup}>
           <span
             className={styles.column__dot}
-            style={{ backgroundColor: dotStyle }}
+            style={{ backgroundColor: dotColor }}
           />
           <h2 className={styles.column__title}>{title}</h2>
 
@@ -74,4 +73,4 @@ export function EmptyState() {
   );
 }
 
-export default Column;
+export default React.memo(Column);

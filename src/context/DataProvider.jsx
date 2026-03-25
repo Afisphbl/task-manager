@@ -7,7 +7,8 @@ import React, {
 } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
 
-const TasksContext = createContext();
+const TasksStateContext = createContext();
+const TasksDispatchContext = createContext();
 
 const INITIAL_STATE = {
   tasks: localStorage.getItem("tasks")
@@ -176,23 +177,41 @@ export function TasksProvider({ children }) {
     localStorage.setItem("tasks", JSON.stringify(state.tasks));
   }, [state.tasks]);
 
+  const stateValue = useMemo(
+    () => ({
+      state,
+      filteredTasks,
+    }),
+    [state, filteredTasks],
+  );
+
   return (
-    <TasksContext.Provider
-      value={{
-        state,
-        filteredTasks,
-        dispatch,
-      }}
-    >
-      {children}
-    </TasksContext.Provider>
+    <TasksDispatchContext.Provider value={dispatch}>
+      <TasksStateContext.Provider value={stateValue}>
+        {children}
+      </TasksStateContext.Provider>
+    </TasksDispatchContext.Provider>
   );
 }
 
-export function useTasks() {
-  const context = useContext(TasksContext);
+export function useTasksState() {
+  const context = useContext(TasksStateContext);
   if (context === undefined) {
-    throw new Error("useTasks must be used within a TasksProvider");
+    throw new Error("useTasksState must be used within a TasksProvider");
   }
   return context;
+}
+
+export function useTasksDispatch() {
+  const context = useContext(TasksDispatchContext);
+  if (context === undefined) {
+    throw new Error("useTasksDispatch must be used within a TasksProvider");
+  }
+  return context;
+}
+
+export function useTasks() {
+  const { state, filteredTasks } = useTasksState();
+  const dispatch = useTasksDispatch();
+  return { state, filteredTasks, dispatch };
 }

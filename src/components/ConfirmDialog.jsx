@@ -1,5 +1,9 @@
 import React from "react";
-import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
+import {
+  TASK_ACTIONS,
+  useTasksDispatch,
+  useTasksState,
+} from "../context/DataProvider";
 import { AlertTriangleIcon } from "lucide-react";
 import Button from "./ReUsedComponents/Button";
 import styles from "../styles/ConfirmDialog.module.css";
@@ -10,7 +14,8 @@ function ConfirmDialog({
   cancel: cancelLabel,
   confirm: confirmLabel,
 }) {
-  const { state, dispatch } = useTasks();
+  const { state } = useTasksState();
+  const dispatch = useTasksDispatch();
   const { pendingDeleteTaskId } = state;
   const cancelBtnClass = styles.btn__cancel;
   const deleteBtnClass = styles.btn__confirm;

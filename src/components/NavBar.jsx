@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
-import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
+import { TASK_ACTIONS, useTasksDispatch } from "../context/DataProvider";
 import useDebounce from "../debounce/UseDebounce";
 import Button from "./ReUsedComponents/Button";
 import Input from "./ReUsedComponents/Input";
@@ -15,7 +15,7 @@ import styles from "../styles/Navbar.module.css";
 
 function NavBar({ children }) {
   const [search, setSearch] = useState("");
-  const { dispatch } = useTasks();
+  const dispatch = useTasksDispatch();
 
   const debouncedSearch = useDebounce(search, 700);
 

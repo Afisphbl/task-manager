@@ -3,31 +3,34 @@ import { DndContext, DragOverlay, closestCorners } from "@dnd-kit/core";
 import { Menu, X } from "lucide-react";
 // import { TASK_ACTIONS, useTasks } from "../context/DataProvider";
 import Column from "./Column";
-import TaskCard from "./TaskCard";
+import TaskCardPreview from "./TaskCardPreview";
 import TaskModal from "./TaskModel";
 import ConfirmDialog from "./ConfirmDialog";
-import { useBoard } from "../context/BoardContext";
+import { TaskModalProvider } from "../context/TaskModalContext";
+import { useBoardData, useBoardUI } from "../context/BoardContext";
 import styles from "../styles/Board.module.css";
 
 function Board() {
   const {
-    boardState,
     isDeleteDialogOpen,
     isTaskModalOpen,
     columnOrder,
     columnLabels,
-    columns,
     counts,
     sensors,
-    handleDragStart,
     handleDragEnd,
     dotStyle,
+  } = useBoardData();
+
+  const {
+    activeTask,
+    activeMobileColumn,
+    isMobileMenuOpen,
+    isMobileView,
+    handleDragStart,
     handleSelectMobileColumn,
     setIsMobileMenuOpen,
-  } = useBoard();
-
-  const { activeTask, activeMobileColumn, isMobileMenuOpen, isMobileView } =
-    boardState;
+  } = useBoardUI();
 
   const boardContent = (
     <>
@@ -83,16 +86,16 @@ function Board() {
           />
         )}
 
-        {isTaskModalOpen && <TaskModal />}
+        {isTaskModalOpen && (
+          <TaskModalProvider>
+            <TaskModal />
+          </TaskModalProvider>
+        )}
 
-        {columnOrder.map((col, i) => (
+        {columnOrder.map((col) => (
           <Column
             id={col}
             key={col}
-            title={col}
-            count={counts[col]}
-            tasks={columns[col]}
-            dotStyle={dotStyle[i]}
             dragDisabled={isMobileView}
             className={
               activeMobileColumn === col
@@ -103,17 +106,7 @@ function Board() {
         ))}
       </section>
       <DragOverlay>
-        {activeTask && (
-          <TaskCard
-            id={activeTask.id}
-            title={activeTask.title}
-            description={activeTask.description}
-            priority={activeTask.priority}
-            label={activeTask.label}
-            dueDate={activeTask.dueDate}
-            isDragging
-          />
-        )}
+        {activeTask && <TaskCardPreview {...activeTask} />}
       </DragOverlay>
     </>
   );
